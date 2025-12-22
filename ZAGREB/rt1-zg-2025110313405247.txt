@@ -1,0 +1,111 @@
+                                        
+rt1-zg
+                                        
+enable
+conf t
+hostname RT1-Zg-777
+service password-encryption
+username cisco privilege 15 secret classclass
+security passwords min-length 10
+no ip domain-lookup
+ip domain name isepacademy.ccna.itn.com
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+login block-for 300 attempts 3 within 120
+line con 0
+password classclass
+login local
+line aux 0
+password classclass
+login
+line vty 0 15
+exec-timeout 0 30
+login local
+privilege level 15
+transport input ssh
+exit
+ 
+ip host pula-zagreb 10.0.0.2  
+ip host split-zagreb 10.0.0.6 
+ip host pula-split 10.0.0.9 
+ip host split-pula 10.0.0.10
+ip host mls1 172.20.7.98
+ip host mls2 172.20.7.102
+ip host sw1-zg 172.20.7.2
+ip host sw2-zg 172.20.7.3
+ip host srv-dhcp 172.20.7.36
+ip host wlc 172.20.7.6
+ip host ap 172.20.7.7
+ip host pc-wlc 172.20.7.8
+ip host pc-a 172.20.4.4
+ip host pc-b 172.20.5.4
+banner motd %
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                          RT1-Zg-777                                #
+#                                                                    #
+######################################################################
+%
+ip route 172.20.8.0 255.255.252.0 10.0.0.2 
+ip route 172.20.12.0 255.255.252.0 10.0.0.6 
+ip route 172.20.8.0 255.255.252.0 10.0.0.6 2
+ip route 172.20.12.0 255.255.252.0 10.0.0.2 2
+ip route 10.0.0.8 255.255.255.252 10.0.0.2
+ip route 10.0.0.8 255.255.255.252 10.0.0.6
+! rota primaria mls1
+ip route 172.20.7.64 255.255.255.224 172.20.7.98 
+ip route 172.20.7.0 255.255.255.224 172.20.7.98
+ip route 172.20.7.32 255.255.255.224 172.20.7.98
+ip route 172.20.4.0 255.255.255.0 172.20.7.98
+ip route 172.20.5.0 255.255.255.0 172.20.7.98
+! rota secundaria mls1
+ip route 172.20.0.0 255.255.254.0 172.20.7.98 2
+ip route 172.20.2.0 255.255.254.0 172.20.7.98 2
+ip route 172.20.6.0 255.255.255.0 172.20.7.98 2
+! rota secundaria mls2
+ip route 172.20.7.64 255.255.255.224 172.20.7.102 2
+ip route 172.20.7.0 255.255.255.224 172.20.7.102 2
+ip route 172.20.7.32 255.255.255.224 172.20.7.102 2
+ip route 172.20.4.0 255.255.255.0 172.20.7.102 2
+ip route 172.20.5.0 255.255.255.0 172.20.7.102 2
+! rota secundaria mls2
+ip route 172.20.0.0 255.255.254.0 172.20.7.102 
+ip route 172.20.2.0 255.255.254.0 172.20.7.102
+ip route 172.20.6.0 255.255.255.0 172.20.7.102
+interface GigabitEthernet0/0  
+description CONNECTION TO MLS1-ZG  
+ip address 172.20.7.97 255.255.255.252 
+no shut
+duplex auto  
+speed auto  
+  
+interface GigabitEthernet0/1  
+description CONNECTION TO MLS2-ZG  
+ip address 172.20.7.101 255.255.255.252  
+no shut
+duplex auto  
+speed auto  
+  
+interface GigabitEthernet0/2  
+no ip address
+no shut  
+duplex auto  
+speed auto  
+  
+interface GigabitEthernet0/2.102  
+description CONNECTION TO PULA  
+encapsulation dot1Q 102  
+ip address 10.0.0.1 255.255.255.252  
+no shut
+  
+interface GigabitEthernet0/2.103  
+description CONNECTION TO SPLIT  
+encapsulation dot1Q 103  
+ip address 10.0.0.5 255.255.255.252  
+no shut
+end
+wr
+                                    
+                        

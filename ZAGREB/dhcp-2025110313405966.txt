@@ -1,0 +1,157 @@
+                                        
+dhcp
+                                        
+enable
+conf t
+hostname SRV-DHCP-777
+service password-encryption
+username cisco privilege 15 secret classclass
+security passwords min-length 10
+ip domain name isepacademy.ccna.itn.com
+no ip domain-lookup
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+login block-for 300 attempts 3 within 120
+line con 0
+password classclass
+login local
+line aux 0
+password classclass
+login
+line vty 0 15
+exec-timeout 0 30
+login local
+privilege level 15
+transport input ssh
+exit
+service dhcp
+ip host sw1-zg 172.20.7.2
+ip host sw2-zg 172.20.7.3
+ip host mls1 172.20.7.4
+ip host mls2 172.20.7.5
+ip host wlc 172.20.7.6
+ip host ap 172.20.7.7
+banner motd %
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                         DHCP-Zg-777                                #
+#                                                                    #
+######################################################################
+%
+! VLAN 20-ADMIN
+ip dhcp excluded-address 172.20.4.1 172.20.4.10
+ip dhcp pool VLAN20-ADMIN
+network 172.20.4.0 255.255.255.0
+default-router 172.20.4.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! VLAN 30-STAFF
+ip dhcp excluded-address 172.20.5.1 172.20.5.10
+ip dhcp pool VLAN30-STAFF
+network 172.20.5.0 255.255.255.0
+default-router 172.20.5.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! VLAN 40-VOIP
+ip dhcp excluded-address 172.20.0.1 172.20.0.10
+ip dhcp pool VLAN40-VOIP
+network 172.20.0.0 255.255.254.0   
+default-router 172.20.0.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! VLAN 50-WIRELESS-ZG
+ip dhcp excluded-address 172.20.2.1 172.20.2.10
+ip dhcp pool VLAN50-WIRELESS-ZG
+network 172.20.2.0 255.255.254.0   
+default-router 172.20.2.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! VLAN 60-GUESTS-ZG
+ip dhcp excluded-address 172.20.6.1 172.20.6.10
+ip dhcp pool VLAN60-GUESTS
+network 172.20.6.0 255.255.255.0
+default-router 172.20.6.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! IPV6:
+! VLAN 20-ADMIN
+ipv6 dhcp pool DHCPV6-VLAN20
+address prefix fd20:4::/64
+dns-server 2001:4860:4860::8888
+domain-name isepacademy.ccna.itn.com
+! VLAN 30-STAFF
+ipv6 dhcp pool DHCPV6-VLAN30
+address prefix fd20:5::/64
+dns-server 2001:4860:4860::8888
+domain-name isepacademy.ccna.itn.com
+! VLAN 40-VOIP
+ipv6 dhcp pool DHCPV6-VLAN40
+address prefix fd20:0::/64
+dns-server 2001:4860:4860::8888
+domain-name isepacademy.ccna.itn.com
+! VLAN 50-WIRELESS-ZG
+ipv6 dhcp pool DHCPV6-VLAN50
+address prefix fd20:2::/64
+dns-server 2001:4860:4860::8888
+domain-name isepacademy.ccna.itn.com
+! VLAN 60-GUESTS-ZG
+ipv6 dhcp pool DHCPV6-VLAN60
+address prefix fd20:6::/64
+dns-server 2001:4860:4860::8888
+domain-name isepacademy.ccna.itn.com
+! INTERFACES:
+interface Gig0/0
+shutdown
+interface gig0/1.10
+description IP DHCP VLAN SERVERS
+encapsulation dot1Q 10
+ip address 172.20.7.36 255.255.255.224
+no shut
+interface Gig0/1.20
+description VLAN 20 - ADMIN
+encapsulation dot1Q 20
+ip address 172.20.4.10 255.255.255.0
+ipv6 address fd20:4::1/64
+ipv6 enable
+ipv6 dhcp server DHCPV6-VLAN20
+no shutdown
+interface Gig0/1.30
+description VLAN 30 - STAFF
+encapsulation dot1Q 30
+ip address 172.20.5.10 255.255.255.0
+ipv6 address fd20:5::1/64
+ipv6 enable
+ipv6 dhcp server DHCPV6-VLAN30
+no shutdown
+interface Gig0/1.40
+description VLAN 40 - VOIP
+encapsulation dot1Q 40
+ip address 172.20.0.10 255.255.254.0
+ipv6 address fd20:0::1/64
+ipv6 enable
+ipv6 dhcp server DHCPV6-VLAN40
+no shutdown
+interface Gig0/1.50
+description VLAN 50 - WIRELESS-ZG
+encapsulation dot1Q 50
+ip address 172.20.2.10 255.255.254.0
+ipv6 address fd20:2::1/64
+ipv6 enable
+ipv6 dhcp server DHCPV6-VLAN50
+no shutdown
+interface Gig0/1.60
+description VLAN 60 - GUESTS-ZG
+encapsulation dot1Q 60
+ip address 172.20.6.10 255.255.255.0
+ipv6 address fd20:6::1/64
+ipv6 enable
+ipv6 dhcp server DHCPV6-VLAN60
+no shutdown
+interface Gig0/1
+no shutdown
+end
+wr
+                                    
+                        

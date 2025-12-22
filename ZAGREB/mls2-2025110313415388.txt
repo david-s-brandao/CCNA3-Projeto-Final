@@ -1,0 +1,224 @@
+                                        
+mls2
+                                        
+en
+conf t
+hostname MLS2-Zg-777
+service password-encryption
+username cisco privilege 15 secret classclass
+ip routing
+no ip domain-lookup
+ip domain name isepacademy.ccna.itn.com
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+login block-for 300 attempts 3 within 120
+line con 0
+password classclass
+login local
+line aux 0
+password classclass
+login
+line vty 0 15
+exec-timeout 0 30
+login local
+privilege level 15
+transport input ssh
+exit
+ip host rt1-zg 172.20.7.101
+ip host sw1-zg 172.20.7.2
+ip host sw2-zg 172.20.7.3
+ip host srv-dhcp 172.20.7.36
+ip host wlc 172.20.7.6
+ip host ap 172.20.7.7
+ip host pc-wlc 172.20.7.8
+ip host pc-a 172.20.4.4
+ip host pc-b 172.20.5.4
+ip route 172.20.8.0 255.255.252.0 172.20.7.101
+ip route 172.20.12.0 255.255.252.0 172.20.7.101
+ip route 10.0.0.0 255.255.255.224 172.20.7.101
+banner motd %
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                         MLS2-Zg-777                                #
+#                                                                    #
+######################################################################
+%
+vlan 5
+name APs
+vlan 6
+name MANAGEMENT
+vlan 7
+name NATIVE
+vlan 10
+name SERVERS
+vlan 20
+name ADMINISTRATION
+vlan 30
+name STAFF
+vlan 40
+name VOIP
+vlan 50
+name WIRELESS
+vlan 60
+name GUESTS
+vlan 99
+name BLACKHOLE
+spanning-tree mode rapid-pvst
+spanning-tree portfast bpduguard default
+spanning-tree vlan 40,50,60 priority 24576
+spanning-tree vlan 5,6,10,20,30 priority 28672
+ip dhcp snooping vlan 10,20,30
+ip arp inspection vlan 10,20,30
+int po1
+description ETHERCHANNEL BETWEEN MLSs
+sw trunk native vlan 7
+sw trunk allowed vlan 1-98,100-4094
+sw mode trunk
+no shut
+int g1/0/1
+description CONNECTION TO RT1-ZG
+no sw
+ip addr 172.20.7.102 255.255.255.252
+no shut
+interface range GigabitEthernet1/0/2 - 3
+description ETHERCHANNEL PORTs
+switchport trunk native vlan 7
+switchport trunk allowed vlan 1-98,100-4094
+switchport mode trunk
+switchport nonegotiate
+channel-group 1 mode on
+no shutdown
+int g1/0/4
+description CONNECTION TO SW2-ZG
+sw trunk native vlan 7
+sw trunk allowed vlan 1-98,100-4094
+sw mode trunk
+sw nonegotiate
+no shut
+int g1/0/5
+description CONNECTION TO SW1-ZG
+sw trunk native vlan 7
+sw trunk allowed vlan 1-98,100-4094
+sw mode trunk
+sw nonegotiate
+no shut
+int range g1/0/2-5
+ip dhcp snooping trust
+ip arp inspection trust
+int range g1/0/6-24
+description PORTs OFF
+ip dhcp snooping limit rate 5
+sw acc vlan 99
+sw mode acc
+spann portf
+shut
+int ran g1/1/1-4
+description PORTs OFF
+ip dhcp snooping limit rate 5
+sw acc vlan 99
+sw mode acc
+spann portf
+shut
+int vlan1
+no ip addr
+int vlan5
+description VLAN AP
+ip addr 172.20.7.67 255.255.255.224
+standby 5 ip 172.20.7.65
+standby 5 timers 1 3
+standby 5 preempt
+no shut
+int vlan6
+description VLAN MANAGEMENT 
+ip addr 172.20.7.5 255.255.255.224
+standby 6 ip 172.20.7.1
+standby 6 timers 1 3
+standby 6 preempt
+no shut
+int vlan10
+description VLAN SERVERS
+ip addr 172.20.7.35 255.255.255.224
+standby 10 ip 172.20.7.33
+standby 10 timers 1 3
+standby 10 preempt
+no shut
+int vlan20
+description VLAN ADM
+ip addr 172.20.4.3 255.255.255.0
+standby 20 ip 172.20.4.1
+standby 20 timers 1 3
+standby 20 preempt
+ip helper-address 172.20.4.10
+no shut
+int vlan30
+description VLAN STAFF
+ip addr 172.20.5.3 255.255.255.0
+standby 30 ip 172.20.5.1
+standby 30 timers 1 3
+standby 30 preempt
+ip helper-address 172.20.5.10
+no shut
+int vlan40
+description VLAN VOIP
+ip addr 172.20.0.3 255.255.254.0
+standby 40 ip 172.20.0.1
+standby 40 timers 1 3
+standby 40 priority 110
+standby 40 preempt
+ip helper-address 172.20.0.10
+no shut
+int vlan50
+description VLAN WIRELESS
+ip addr 172.20.2.3 255.255.254.0
+standby 50 ip 172.20.2.1
+standby 50 timers 1 3
+standby 50 priority 110
+standby 50 preempt
+ip helper-address 172.20.2.10
+no shut
+int vlan60 
+description VLAN GUESTS
+ip addr 172.20.6.3 255.255.255.0
+standby 60 ip 172.20.6.1
+standby 60 timers 1 3
+standby 60 priority 110
+standby 60 preempt
+ip helper-address 172.20.6.10
+no shut
+end
+wr
+ATUALIZADOS COMANDOS
+conﬁgure terminal
+! Remove existing conﬁg
+no interface port-channel 1
+interface range GigabitEthernet1/0/2 - 3
+ shutdown
+ no channel-group
+ no switchport trunk allowed vlan
+ no switchport trunk native vlan
+ switchport mode access
+! Conﬁgure Port-channel
+interface port-channel 1
+ description ETHERCHANNEL BETWEEN MLSs
+ switchport trunk native vlan 7
+ switchport trunk allowed vlan 1-98,100-4094
+ switchport mode trunk
+ switchport nonegotiate
+! Conﬁgure physical interfaces
+interface range GigabitEthernet1/0/2 - 3
+ description ETHERCHANNEL PORTs
+ switchport trunk native vlan 7
+ switchport trunk allowed vlan 1-98,100-4094
+ switchport mode trunk
+ switchport nonegotiate
+ channel-group 1 mode on
+ no shutdown
+! Conﬁgure STP
+spanning-tree mode rapid-pvst
+spanning-tree vlan 40,50,60 root primary
+spanning-tree vlan 5,6,10,20,30 root secondary
+end
+                                    
+                        

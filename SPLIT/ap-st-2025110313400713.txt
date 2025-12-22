@@ -1,0 +1,10 @@
+                                        
+ap-st
+                                        
+enable
+Cisco
+capwap ap ip address 172.20.14.34 255.255.255.248
+capwap ap ip default-gateway 172.20.14.33
+capwap ap controller ip address 172.20.7.68
+                                    
+                        

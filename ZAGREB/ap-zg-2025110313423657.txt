@@ -1,0 +1,10 @@
+                                        
+ap-zg
+                                        
+enable
+Cisco
+capwap ap ip address 172.20.7.69 255.255.255.224 
+capwap ap ip default-gateway 172.20.7.65
+capwap ap controller ip address 172.20.7.68
+                                    
+                        

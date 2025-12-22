@@ -1,0 +1,122 @@
+                                        
+sw1-st
+                                        
+en
+conf t
+hostname SW1-St-777
+service password-encryption
+username cisco privilege 15 secret classclass
+ip domain name isepacademy.ccna.itn.com
+no ip domain-lookup
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+line con 0
+password classclass
+login local
+line vty 0 15
+exec-timeout 0 30
+login local
+privilege level 15
+transport input ssh
+exit
+ip host rt1-st 172.20.14.41
+ip host Lo0 172.20.13.129 
+ip host Lo1 172.20.13.193 
+ip host Lo2 172.20.13.1
+ip host ap 172.20.14.34 
+ip host pc-d 172.20.12.2
+vlan 5
+name APs
+vlan 6
+name MANAGEMENT
+vlan 7
+name NATIVE
+vlan 10
+name SERVERS
+vlan 20
+name ADMINISTRATION
+vlan 30
+name STAFF
+vlan 40
+name VOIP
+vlan 50
+name WIRELESS
+vlan 60
+name GUESTS
+vlan 99
+name BLACKHOLE
+banner motd %
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                          SW1-St-777                                #
+#                                                                    #
+######################################################################
+%
+spanning-tree mode rapid-pvst
+spanning-tree portfast bpduguard default
+ip dhcp snooping vlan 30 
+ip arp inspection vlan 30
+int range f0/1-15  
+sw acc vlan 30  
+sw mode acc
+spann portf
+switchport port-security
+switchport port-security maximum 5
+switchport port-security aging time 5
+switchport port-security violation shutdown
+shut
+int f0/10
+description CONNECTION TO PC-D
+no shut
+int range f0/16-20  
+sw acc vlan 99  
+sw mode acc  
+spann portf
+shut
+int f0/21  
+description CONNECTION TO AP
+sw trunk native vlan 5  
+sw trunk allowed vlan 5,50,60  
+sw mode trunk  
+sw nonegotiate
+int f0/22 
+sw trunk native vlan 5  
+sw trunk allowed vlan 5,50,60  
+sw mode trunk  
+sw nonegotiate
+shut
+int range f0/23-24  
+sw acc vlan 99  
+sw mode acc  
+spann portf
+shut
+int ran f0/1-24
+ip dhcp snooping limit rate 5
+int range g0/1  
+description CONNECTION TO RT1-St
+sw trunk native vlan 7
+sw trunk allowed vlan 5,6,30,50,60  
+sw mode trunk  
+sw nonegotiate
+spann portf trunk
+ip dhcp snooping trust
+ip arp inspection trust
+no shut
+int g0/2  
+sw acc vlan 99  
+sw mode acc 
+spann portf
+ip dhcp snooping limit rate 5
+shut
+int vlan1  
+no ip addr
+int vlan6  
+description VLAN 6 SW1 IP  
+ip addr 172.20.14.42 255.255.255.224
+no shut
+end
+wr
+                                    
+                        

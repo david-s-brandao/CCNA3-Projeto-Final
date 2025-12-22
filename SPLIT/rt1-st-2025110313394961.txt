@@ -1,0 +1,148 @@
+                                        
+rt1-st
+                                        
+enable
+conf t
+hostname RT1-St-777
+service password-encryption
+username cisco privilege 15 secret classclass
+security passwords min-length 10
+ip domain name isepacademy.ccna.itn.com
+no ip domain-lookup
+crypto key generate rsa general-keys modulus 2048
+ip ssh version 2
+login block-for 300 attempts 3 within 120
+line con 0
+password classclass
+login local
+line aux 0
+password classclass
+login
+line vty 0 15
+exec-timeout 0 30
+login local
+privilege level 15
+transport input ssh
+exit
+service dhcp
+ip host zagreb-pula 10.0.0.1 
+ip host pula-zagreb 10.0.0.2 
+ip host zagreb-split 10.0.0.5  
+ip host pula-split 10.0.0.9 
+ip host sw1 172.20.14.42
+ip host Lo0 172.20.13.129 
+ip host Lo1 172.20.13.193 
+ip host Lo2 172.20.13.1
+ip host ap 172.20.14.34 
+ip host pc-d 172.20.12.2
+banner motd %
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                          RT1-St-777                                #
+#                                                                    #
+######################################################################
+%
+ip route 172.20.0.0 255.255.248.0 10.0.0.5 
+ip route 172.20.8.0 255.255.252.0 10.0.0.9 
+ip route 172.20.8.0 255.255.252.0 10.0.0.5 2
+ip route 172.20.0.0 255.255.248.0 10.0.0.9 2
+ip route 10.0.0.0 255.255.255.252 10.0.0.9
+ip route 10.0.0.0 255.255.255.252 10.0.0.5
+! VLAN 30-STAFF
+ip dhcp excluded-address 172.20.12.1 172.20.12.5
+ip dhcp pool VLAN30-STAFF
+network 172.20.12.0 255.255.255.128
+default-router 172.20.12.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! VLAN 50-WIRELESS-ST
+ip dhcp excluded-address 172.20.12.129 172.20.12.133
+ip dhcp pool VLAN50-WIRELESS-ZG
+network 172.20.12.128 255.255.254.128   
+default-router 172.20.12.129
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+! VLAN 60-GUESTS-ST
+ip dhcp excluded-address 172.20.14.1 172.20.14.5
+ip dhcp pool VLAN60-GUESTS
+network 172.20.14.0 255.255.255.224
+default-router 172.20.14.1
+dns-server 8.8.8.8
+domain-name isepacademy.ccna.itn.com
+interface Loopback0  
+description CONNECTION TO MULTIMEDIA  
+ip address 172.20.13.129 255.255.255.192  
+  
+interface Loopback1  
+description CONNECTION TO DESIGN
+ip address 172.20.13.193 255.255.255.192  
+  
+interface Loopback2  
+description CONNECTION TO COMMUNICATION  
+ip address 172.20.13.1 255.255.255.128  
+  
+interface GigabitEthernet0/0  
+no ip address  
+duplex auto  
+speed auto  
+no shut
+  
+interface GigabitEthernet0/1  
+no ip address  
+duplex auto  
+speed auto
+no shut  
+  
+interface GigabitEthernet0/0.5  
+description CONNECTION TO VLAN 5 - AP  
+encapsulation dot1Q 5  
+ip address 172.20.14.33 255.255.255.248  
+no shut
+  
+interface GigabitEthernet0/0.6  
+description CONNECTION TO VLAN 6 - MANAGEMENT
+encapsulation dot1Q 6  
+ip address 172.20.14.41 255.255.255.248  
+no shut
+  
+interface GigabitEthernet0/0.30  
+description CONNECTION TO VLAN 30 - STAFF  
+encapsulation dot1Q 30  
+ip address 172.20.12.1 255.255.255.128  
+no shut
+  
+interface GigabitEthernet0/0.50  
+description CONNECTION TO VLAN 50 - WIRELESS  
+encapsulation dot1Q 50  
+ip address 172.20.12.129 255.255.255.128  
+no shut
+  
+interface GigabitEthernet0/0.60  
+description CONNECTION TO VLAN 60 - GUESTS  
+encapsulation dot1Q 60  
+ip address 172.20.14.1 255.255.255.224  
+no shut
+  
+interface GigabitEthernet0/1.103  
+description CONNECTION TO RT1-Zg  
+encapsulation dot1Q 103  
+ip address 10.0.0.6 255.255.255.252  
+no shut
+  
+interface GigabitEthernet0/1.203  
+description CONNECTION TO RT-Pl  
+encapsulation dot1Q 203  
+ip address 10.0.0.10 255.255.255.252  
+no shut
+  
+interface GigabitEthernet0/2  
+no ip address  
+duplex auto  
+speed auto  
+shut
+end
+wr
+                                    
+                        

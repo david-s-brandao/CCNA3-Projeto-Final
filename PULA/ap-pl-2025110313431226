@@ -1,0 +1,5 @@
+enable
+Cisco
+capwap ap ip address 172.20.11.98 255.255.255.248
+capwap ap ip default-gateway 172.20.11.97
+capwap ap controller ip address 172.20.7.68
