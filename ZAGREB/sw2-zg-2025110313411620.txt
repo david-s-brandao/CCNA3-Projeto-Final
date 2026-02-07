@@ -151,6 +151,34 @@ ip addr 172.20.7.3 255.255.255.224
 no shut
 ip default-gateway 172.20.7.1
 end
+
+conf t
+
+! Ligação ao SNMP
+logging host 172.20.7.35
+logging trap informational
+snmp-server enable traps
+snmp-server host 172.20.7.35 version 2c cisco
+ip access-list standard ACL-SNMP
+ permit host 172.20.7.35
+ deny any
+exit
+
+snmp-server community cisco RO ACL-SNMP
+
+
+conf t
+ntp server 172.20.7.97
+
+! ACL para o acesso ssh - IMPORTANTE
+conf t
+ip access-list standard SSH-ACCESS
+ permit 172.20.4.0 0.0.0.255
+ permit 172.20.5.0 0.0.0.255
+ deny any
+line vty 0 15
+ access-class SSH-ACCESS in
+end
 wr
                                     
                         

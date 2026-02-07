@@ -1,0 +1,19 @@
+conf t
+
+interface Loopback0
+ description EMULATING SERVER 1 (SNMP/SYSLOG)
+ ip address 172.20.7.35 255.255.255.255
+ exit
+
+! Anunciar OSPF
+router ospf 100
+ router-id 3.3.3.3
+ network 172.20.7.35 0.0.0.0 area 0
+ exit
+
+! Tentar receber Syslog
+logging on
+logging buffered 64000 debugging
+
+end
+wr
