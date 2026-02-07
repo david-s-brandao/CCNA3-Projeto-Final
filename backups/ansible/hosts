@@ -1,0 +1,24 @@
+[zagreb_devices]
+RT1-Zg   ansible_host=172.20.7.97
+MLS1-Zg  ansible_host=172.20.7.98
+MLS2-Zg  ansible_host=172.20.7.102
+SW1-Zg   ansible_host=172.20.7.2
+SW2-Zg   ansible_host=172.20.7.3
+SRV-DHCP ansible_host=172.20.7.36
+
+[pula_devices]
+RT1-Pl   ansible_host=172.20.11.105
+SW1-Pl   ansible_host=172.20.11.106
+
+[split_devices]
+RT1-St   ansible_host=172.20.14.41
+SW1-St   ansible_host=172.20.14.42
+
+[all:vars]
+ansible_user=cisco
+ansible_password=classclass
+ansible_connection=network_cli
+ansible_network_os=cisco.ios.ios
+ansible_become=yes
+ansible_become_method=enable
+ansible_become_password=classclass

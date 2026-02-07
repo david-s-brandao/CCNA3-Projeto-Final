@@ -1,0 +1,21 @@
+---
+- name: Backup de Configuracoes Cisco
+  hosts: zagreb_devices
+  gather_facts: no
+
+  tasks:
+    - name: Criar pasta de backups
+      file:
+        path: ./devices
+        state: directory
+      run_once: true
+
+    - name: Obter running-config
+      cisco.ios.ios_command:
+        commands: show running-config
+      register: config_output
+
+    - name: Guardar em ficheiro
+      copy:
+        content: "{{ config_output.stdout[0] }}"
+        dest: "./devices/{{ inventory_hostname }}_config.txt"
