@@ -304,5 +304,17 @@ ephone-dn 1
 ephone-dn 2
  number 2002 [cite: 107]
 
- 
+
+conf t
+! --- Configuração de SYSLOG ---
+logging host 172.20.7.35
+logging trap informational
+
+! --- Configuração de SNMP ---
+snmp-server community cisco RO ACL-SNMP
+snmp-server enable traps
+snmp-server host 172.20.7.35 version 2c cisco
+exit
+
+
 wr

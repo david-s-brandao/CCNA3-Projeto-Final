@@ -289,6 +289,18 @@ ip access-list standard ACL-SNMP
 !
 snmp-server community cisco RO ACL-SNMP
 
+
+conf t
+! --- Configuração de SYSLOG ---
+logging host 172.20.7.35
+logging trap informational
+
+! --- Configuração de SNMP ---
+snmp-server community cisco RO ACL-SNMP
+snmp-server enable traps
+snmp-server host 172.20.7.35 version 2c cisco
+exit
+
 wr
                                     
                         

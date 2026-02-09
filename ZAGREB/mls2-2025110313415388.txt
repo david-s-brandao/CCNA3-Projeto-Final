@@ -234,7 +234,7 @@ ip access-list extended GUEST-ONLY-INTERNET
 !
 interface Vlan 60
  ip access-group GUEST-ONLY-INTERNET in
- 
+
 ip access-list extended VOIP-NO-INTERNET
  permit ip 172.20.0.0 0.0.1.255 172.20.0.0 0.0.255.255
  deny ip 172.20.0.0 0.0.1.255 any
@@ -328,4 +328,15 @@ ip host split-zagreb 10.0.0.6
 ip host pula-split 10.0.0.9
 ip host split-pula 10.0.0.10
 
+
+conf t
+! --- Configuração de SYSLOG ---
+logging host 172.20.7.35
+logging trap informational
+
+! --- Configuração de SNMP ---
+snmp-server community cisco RO ACL-SNMP
+snmp-server enable traps
+snmp-server host 172.20.7.35 version 2c cisco
+exit
 wr
