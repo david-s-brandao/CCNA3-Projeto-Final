@@ -117,6 +117,36 @@ description VLAN 6 SW1 IP
 ip addr 172.20.14.42 255.255.255.224
 no shut
 end
+
+
+ip access-list standard ACL-SNMP
+ permit host 172.20.7.35
+ deny any
+!
+snmp-server community cisco RO ACL-SNMP
+
+
+ip host rt1-zg 172.20.7.97
+ip host mls1-zg 172.20.7.4
+ip host mls2-zg 172.20.7.5
+ip host sw1-zg 172.20.7.2
+ip host sw2-zg 172.20.7.3
+ip host srv-dhcp 172.20.7.36
+ip host rt1-pl 172.20.11.105
+ip host sw1-pl 172.20.11.106
+ip host rt1-st 172.20.14.41
+ip host sw1-st 172.20.14.42
+ip host zagreb-pula 10.0.0.1
+ip host pula-zagreb 10.0.0.2
+ip host zagreb-split 10.0.0.5
+ip host split-zagreb 10.0.0.6
+ip host pula-split 10.0.0.9
+ip host split-pula 10.0.0.10
+
+conf t
+ntp server 172.20.7.97 [cite: 96]
+exit
+
 wr
                                     
                         

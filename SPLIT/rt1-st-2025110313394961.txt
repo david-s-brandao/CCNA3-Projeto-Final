@@ -44,12 +44,7 @@ banner motd %
 #                                                                    #
 ######################################################################
 %
-ip route 172.20.0.0 255.255.248.0 10.0.0.5 
-ip route 172.20.8.0 255.255.252.0 10.0.0.9 
-ip route 172.20.8.0 255.255.252.0 10.0.0.5 2
-ip route 172.20.0.0 255.255.248.0 10.0.0.9 2
-ip route 10.0.0.0 255.255.255.252 10.0.0.9
-ip route 10.0.0.0 255.255.255.252 10.0.0.5
+
 ! VLAN 30-STAFF
 ip dhcp excluded-address 172.20.12.1 172.20.12.5
 ip dhcp pool VLAN30-STAFF
@@ -84,9 +79,11 @@ description CONNECTION TO COMMUNICATION
 ip address 172.20.13.1 255.255.255.128  
   
 interface GigabitEthernet0/0  
-no ip address  
-duplex auto  
+ip address dhcp
+no shut
+duplex auto
 speed auto  
+ip nat outside 
 no shut
   
 interface GigabitEthernet0/1  
@@ -112,7 +109,10 @@ description CONNECTION TO VLAN 30 - STAFF
 encapsulation dot1Q 30  
 ip address 172.20.12.1 255.255.255.128  
 no shut
-  
+
+
+
+
 interface GigabitEthernet0/0.50  
 description CONNECTION TO VLAN 50 - WIRELESS  
 encapsulation dot1Q 50  
@@ -143,6 +143,152 @@ duplex auto
 speed auto  
 shut
 end
+
+ip host rt1-zg 172.20.7.97
+ip host mls1-zg 172.20.7.4
+ip host mls2-zg 172.20.7.5
+ip host sw1-zg 172.20.7.2
+ip host sw2-zg 172.20.7.3
+ip host srv-dhcp 172.20.7.36
+ip host rt1-pl 172.20.11.105
+ip host sw1-pl 172.20.11.106
+ip host rt1-st 172.20.14.41
+ip host sw1-st 172.20.14.42
+ip host zagreb-pula 10.0.0.1
+ip host pula-zagreb 10.0.0.2
+ip host zagreb-split 10.0.0.5
+ip host split-zagreb 10.0.0.6
+ip host pula-split 10.0.0.9
+ip host split-pula 10.0.0.10
+
+
+conf t
+
+! --- Phase 1: ISAKMP Policy ---
+crypto isakmp policy 100
+ encr aes 128
+ hash sha
+ authentication pre-share
+ group 5
+exit
+
+! --- Keys (Pre-Shared) ---
+! Chave para Zagreb
+crypto isakmp key z4gr3b$pl1t address SUBSTITUIR_IP_WAN_ZAGREB
+! Chave para Pula
+crypto isakmp key Pvl4$pl1t address SUBSTITUIR_IP_WAN_PULA
+
+! --- Phase 2: Transform Set ---
+crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
+ mode tunnel
+exit
+
+! --- ACLs para definir tráfego GRE ---
+! ACL 101: De Split para Zagreb
+ip access-list extended 101
+ permit gre host SUBSTITUIR_IP_WAN_SPLIT host SUBSTITUIR_IP_WAN_ZAGREB
+! ACL 102: De Split para Pula
+ip access-list extended 102
+ permit gre host SUBSTITUIR_IP_WAN_SPLIT host SUBSTITUIR_IP_WAN_PULA
+
+! --- Crypto Map ---
+crypto map CROATIA 10 ipsec-isakmp
+ set peer SUBSTITUIR_IP_WAN_ZAGREB
+ set transform-set TSET
+ match address 101
+!
+crypto map CROATIA 20 ipsec-isakmp
+ set peer SUBSTITUIR_IP_WAN_PULA
+ set transform-set TSET
+ match address 102
+
+! --- Aplicar na Interface WAN ---
+interface GigabitEthernet0/0
+ crypto map CROATIA
+exit
+
+
+
+ip route 0.0.0.0 0.0.0.0 dhcp
+
+! --- a. & b. & e. Configuração OSPF ---
+conf t
+router ospf 100
+ router-id 5.5.5.5
+ ! Redes Locais (Loopbacks)
+ network 172.20.13.128 0.0.0.63 area 0
+ network 172.20.13.192 0.0.0.63 area 0
+ network 172.20.13.0 0.0.0.127 area 0
+ ! Rede da LAN física (Ligação ao SW1-St)
+ network 172.20.14.40 0.0.0.3 area 0
+ ! Rede do Túnel para Zagreb
+ network 10.0.0.4 0.0.0.3 area 0
+ ! Segurança
+ passive-interface default
+ no passive-interface GigabitEthernet0/1
+ no passive-interface Tunnel0
+exit
+
+conf t
+! --- a. ACL ---
+access-list 1 permit 172.20.0.0 0.0.255.255
+
+! --- b. Dynamic NAT ---
+! [cite_start]Assume G0/0 como a interface WAN [cite: 117]
+ip nat inside source list 1 interface GigabitEthernet0/0 overload
+
+! --- Interfaces ---
+interface GigabitEthernet0/0
+ ip nat outside
+ exit
+
+! Loopbacks
+interface range Loopback0, Loopback1, Loopback2
+ ip nat inside
+ exit
+
+! Subinterfaces LAN (VLANs locais)
+! [cite_start]Aplica nas subinterfaces configuradas no teu router (ex: G0/0.5, G0/0.30...) [cite: 118]
+interface range GigabitEthernet0/0.5, GigabitEthernet0/0.6, GigabitEthernet0/0.30, GigabitEthernet0/0.50, GigabitEthernet0/0.60
+ ip nat inside
+ exit
+
+
+conf t
+! Pool DHCP para Voz em Split
+ip dhcp pool VOIP-SPLIT
+ network 172.20.13.192 255.255.255.192 [cite: 145]
+ default-router 172.20.13.193
+ option 150 ip 172.20.13.193 [cite: 341]
+exit
+
+telephony-service
+ max-ephones 5 [cite: 345]
+ max-dn 10 [cite: 346]
+ ip source-address 172.20.13.193 port 2000 [cite: 347]
+ system message SPLIT-VOICE [cite: 348]
+ create cnf-files [cite: 351]
+exit
+
+ephone-dn 1
+ number 5001 [cite: 354]
+ephone-dn 2
+ number 5002 [cite: 354]
+
+
+
+conf t
+! Sincroniza com o IP da interface LAN do RT1-Zg
+ntp server 172.20.7.97 [cite: 116, 147]
+exit
+
+
+ip access-list standard ACL-SNMP
+ permit host 172.20.7.35
+ deny any
+!
+snmp-server community cisco RO ACL-SNMP
+
 wr
                                     
                         
