@@ -98,25 +98,38 @@ duplex auto
 speed auto  
 no shut
 
+interface GigabitEthernet0/1
+ no shutdown
+
+interface GigabitEthernet0/1.30
+ description CONNECTION TO VLAN 30 - STAFF
+ encapsulation dot1Q 30
+ ip address 172.20.10.129 255.255.255.128
+ ip nat inside
+!
+interface GigabitEthernet0/1.50
+ description CONNECTION TO VLAN 50 - WIRELESS
+ encapsulation dot1Q 50
+ ip address 172.20.9.1 255.255.255.0
+ ip nat inside
+!
+! Faltava a VLAN 60 (GUESTS)
+interface GigabitEthernet0/1.60
+ description CONNECTION TO VLAN 60 - GUESTS
+ encapsulation dot1Q 60
+ ip address 172.20.11.1 255.255.255.192
+ ip nat inside
+
 interface GigabitEthernet0/1.40
-description VOIP
-encapsulation dot1Q 
-  
-interface GigabitEthernet0/1.102  
-description CONNECTION TO ZAGREB  
-encapsulation dot1Q 102  
-ip address 10.0.0.2 255.255.255.252  
-no shut  
-interface GigabitEthernet0/1.203  
-description CONNECTION TO SPLIT  
-encapsulation dot1Q 203  
-ip address 10.0.0.9 255.255.255.252
-no shut
-interface GigabitEthernet0/2
-no ip address  
-duplex auto  
-speed auto  
-shut
+ description CONNECTION TO VLAN 40 - VOIP
+ encapsulation dot1Q 40
+ ip address 172.20.11.65 255.255.255.224
+ ip nat inside
+ ip access-group VOIP-NO-INTERNET in
+exit
+interface GigabitEthernet0/1.7
+ encapsulation dot1Q 7 native
+ no ip address
 
 end
 ip host rt1-zg 172.20.7.97
@@ -138,6 +151,51 @@ ip host split-pula 10.0.0.10
 
 
 
+
+
+
+
+
+
+
+
+!!!!! ATÉ AQUI !!!!!!!!!
+! VER IPS DE CADA PORTA E DEFINIR AQUI NOS SUBSTITUIR
+
+ip access-list extended VOIP-NO-INTERNET
+ deny ip any any
+
+ip access-list extended GUEST-ONLY-INTERNET
+ deny ip 172.20.11.0 0.0.0.63 172.20.0.0 0.0.255.255
+ permit ip any any
+dial-peer voice 2000 voip
+ destination-pattern 2...
+ session-target ipv4:10.0.0.1  ! IP Tunnel de Zagreb
+
+dial-peer voice 5000 voip
+ destination-pattern 5...
+ session-target ipv4:10.0.0.10 ! IP Tunnel de Split (verificar endereçamento abaixo)
+
+! ACL 101: De Pula para Zagreb
+ip access-list extended 101
+ permit gre host SUBSTITUIR_IP_WAN_PULA host SUBSTITUIR_IP_WAN_ZAGREB
+! ACL 102: De Pula para Split
+ip access-list extended 102
+ permit gre host SUBSTITUIR_IP_WAN_PULA host SUBSTITUIR_IP_WAN_SPLIT
+
+! Túnel para Zagreb
+interface Tunnel0
+ description Tunnel PULA-ZAGREB
+ ip address 10.0.0.2 255.255.255.252
+ tunnel source GigabitEthernet0/0
+ tunnel destination SUBSTITUIR_IP_WAN_ZAGREB
+!
+! Túnel para Split (Mesh)
+interface Tunnel1
+ description Tunnel PULA-SPLIT
+ ip address 10.0.0.9 255.255.255.252
+ tunnel source GigabitEthernet0/0
+ tunnel destination SUBSTITUIR_IP_WAN_SPLIT
 conf t
 
 ! --- Phase 1: ISAKMP Policy ---
@@ -158,14 +216,6 @@ crypto isakmp key Pvl4$pl1t address SUBSTITUIR_IP_WAN_SPLIT
 crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
  mode tunnel
 exit
-
-! --- ACLs para definir tráfego GRE ---
-! ACL 101: De Pula para Zagreb
-ip access-list extended 101
- permit gre host SUBSTITUIR_IP_WAN_PULA host SUBSTITUIR_IP_WAN_ZAGREB
-! ACL 102: De Pula para Split
-ip access-list extended 102
- permit gre host SUBSTITUIR_IP_WAN_PULA host SUBSTITUIR_IP_WAN_SPLIT
 
 ! --- Crypto Map ---
 crypto map CROATIA 10 ipsec-isakmp

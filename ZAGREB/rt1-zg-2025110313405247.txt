@@ -228,6 +228,22 @@ crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
  mode tunnel
 exit
 
+
+
+
+!!!!! ATÉ AQUI !!!!!!!!!
+! VER IPS DE CADA PORTA E DEFINIR AQUI NOS SUBSTITUIR
+
+
+conf t
+dial-peer voice 4000 voip
+ destination-pattern 4...
+ session-target ipv4:10.0.0.2 ! IP Tunnel Pula
+!
+dial-peer voice 5000 voip
+ destination-pattern 5...
+ session-target ipv4:10.0.0.6 ! IP Tunnel Split
+
 ! --- ACLs para definir tráfego GRE ---
 ! ACL 101: De Zagreb para Pula
 ip access-list extended 101

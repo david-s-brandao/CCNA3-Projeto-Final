@@ -91,51 +91,49 @@ no ip address
 duplex auto  
 speed auto
 no shut  
-  
-interface GigabitEthernet0/0.5  
-description CONNECTION TO VLAN 5 - AP  
-encapsulation dot1Q 5  
-ip address 172.20.14.33 255.255.255.248  
-no shut
-  
-interface GigabitEthernet0/0.6  
-description CONNECTION TO VLAN 6 - MANAGEMENT
-encapsulation dot1Q 6  
-ip address 172.20.14.41 255.255.255.248  
-no shut
-  
-interface GigabitEthernet0/0.30  
-description CONNECTION TO VLAN 30 - STAFF  
-encapsulation dot1Q 30  
-ip address 172.20.12.1 255.255.255.128  
-no shut
 
+interface GigabitEthernet0/1.7
+ description NATIVE VLAN FIX
+ encapsulation dot1Q 7 native
+ no ip address
+!
+interface GigabitEthernet0/1.5
+ description VLAN 5 - AP
+ encapsulation dot1Q 5
+ ip address 172.20.14.33 255.255.255.248
+ ip nat inside
+!
+interface GigabitEthernet0/1.6
+ description VLAN 6 - MANAGEMENT
+ encapsulation dot1Q 6
+ ip address 172.20.14.41 255.255.255.248
+ ip nat inside
+!
+interface GigabitEthernet0/1.30
+ description VLAN 30 - STAFF
+ encapsulation dot1Q 30
+ ip address 172.20.12.1 255.255.255.128
+ ip nat inside
+!
+interface GigabitEthernet0/1.40
+ description VLAN 40 - VOIP
+ encapsulation dot1Q 40
+ ip address 172.20.13.193 255.255.255.192
+ ip nat inside
+ ip access-group VOIP-NO-INTERNET in
+!
+interface GigabitEthernet0/1.50
+ description VLAN 50 - WIRELESS
+ encapsulation dot1Q 50
+ ip address 172.20.12.129 255.255.255.128
+ ip nat inside
+!
+interface GigabitEthernet0/1.60
+ description VLAN 60 - GUESTS
+ encapsulation dot1Q 60
+ ip address 172.20.14.1 255.255.255.224
+ ip nat inside
 
-
-
-interface GigabitEthernet0/0.50  
-description CONNECTION TO VLAN 50 - WIRELESS  
-encapsulation dot1Q 50  
-ip address 172.20.12.129 255.255.255.128  
-no shut
-  
-interface GigabitEthernet0/0.60  
-description CONNECTION TO VLAN 60 - GUESTS  
-encapsulation dot1Q 60  
-ip address 172.20.14.1 255.255.255.224  
-no shut
-  
-interface GigabitEthernet0/1.103  
-description CONNECTION TO RT1-Zg  
-encapsulation dot1Q 103  
-ip address 10.0.0.6 255.255.255.252  
-no shut
-  
-interface GigabitEthernet0/1.203  
-description CONNECTION TO RT-Pl  
-encapsulation dot1Q 203  
-ip address 10.0.0.10 255.255.255.252  
-no shut
   
 interface GigabitEthernet0/2  
 no ip address  
@@ -183,6 +181,21 @@ crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
  mode tunnel
 exit
 
+
+
+!!!!! ATÉ AQUI !!!!!!!!!
+! VER IPS DE CADA PORTA E DEFINIR AQUI NOS SUBSTITUIR
+
+
+dial-peer voice 2000 voip
+ destination-pattern 2...
+ session-target ipv4:10.0.0.5 ! IP Tunnel de Zagreb
+!
+dial-peer voice 4000 voip
+ destination-pattern 4...
+ session-target ipv4:10.0.0.9 ! IP Tunnel de Pula
+
+
 ! --- ACLs para definir tráfego GRE ---
 ! ACL 101: De Split para Zagreb
 ip access-list extended 101
@@ -190,6 +203,26 @@ ip access-list extended 101
 ! ACL 102: De Split para Pula
 ip access-list extended 102
  permit gre host SUBSTITUIR_IP_WAN_SPLIT host SUBSTITUIR_IP_WAN_PULA
+ip access-list extended VOIP-NO-INTERNET
+ deny ip any any
+!ip access-list extended GUEST-ONLY-INTERNET
+ deny ip 172.20.14.0 0.0.0.31 172.20.0.0 0.0.255.255
+ permit ip any any
+
+
+! Túnel para Zagreb
+interface Tunnel0
+ description Tunnel SPLIT-ZAGREB
+ ip address 10.0.0.6 255.255.255.252
+ tunnel source GigabitEthernet0/0
+ tunnel destination SUBSTITUIR_IP_WAN_ZAGREB
+!
+! Túnel para Pula (Mesh)
+interface Tunnel1
+ description Tunnel SPLIT-PULA
+ ip address 10.0.0.10 255.255.255.252
+ tunnel source GigabitEthernet0/0
+ tunnel destination SUBSTITUIR_IP_WAN_PULA
 
 ! --- Crypto Map ---
 crypto map CROATIA 10 ipsec-isakmp
@@ -233,8 +266,6 @@ conf t
 ! --- a. ACL ---
 access-list 1 permit 172.20.0.0 0.0.255.255
 
-! --- b. Dynamic NAT ---
-! [cite_start]Assume G0/0 como a interface WAN [cite: 117]
 ip nat inside source list 1 interface GigabitEthernet0/0 overload
 
 ! --- Interfaces ---
@@ -249,7 +280,7 @@ interface range Loopback0, Loopback1, Loopback2
 
 ! Subinterfaces LAN (VLANs locais)
 ! [cite_start]Aplica nas subinterfaces configuradas no teu router (ex: G0/0.5, G0/0.30...) [cite: 118]
-interface range GigabitEthernet0/0.5, GigabitEthernet0/0.6, GigabitEthernet0/0.30, GigabitEthernet0/0.50, GigabitEthernet0/0.60
+interface range GigabitEthernet0/1.5, GigabitEthernet0/1.6, GigabitEthernet0/1.30, GigabitEthernet0/1.50, GigabitEthernet0/1.60
  ip nat inside
  exit
 
