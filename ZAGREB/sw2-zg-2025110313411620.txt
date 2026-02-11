@@ -180,6 +180,7 @@ line vty 0 15
  access-class SSH-ACCESS in
 end
 
+conf t
 
 ip host rt1-zg 172.20.7.97
 ip host mls1-zg 172.20.7.4

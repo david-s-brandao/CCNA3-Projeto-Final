@@ -69,7 +69,7 @@ ip dhcp pool VLAN40-VOIP
  network 172.20.11.64 255.255.255.224
  default-router 172.20.11.65
  dns-server 8.8.8.8
- option 150 ip 172.20.7.97
+ option 150 ip 172.20.11.65
 !
 !
 !

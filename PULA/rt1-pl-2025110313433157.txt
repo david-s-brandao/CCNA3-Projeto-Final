@@ -161,6 +161,7 @@ ip host split-pula 10.0.0.10
 
 !!!!! ATÉ AQUI !!!!!!!!!
 ! VER IPS DE CADA PORTA E DEFINIR AQUI NOS SUBSTITUIR
+conf t
 
 ip access-list extended VOIP-NO-INTERNET
  deny ip any any
@@ -170,32 +171,32 @@ ip access-list extended GUEST-ONLY-INTERNET
  permit ip any any
 dial-peer voice 2000 voip
  destination-pattern 2...
- session-target ipv4:10.0.0.1  ! IP Tunnel de Zagreb
+ session target ipv4:10.0.0.1  ! IP Tunnel de Zagreb
 
 dial-peer voice 5000 voip
  destination-pattern 5...
- session-target ipv4:10.0.0.10 ! IP Tunnel de Split (verificar endereçamento abaixo)
+ session target ipv4:10.0.0.10 ! IP Tunnel de Split (verificar endereçamento abaixo)
 
 ! ACL 101: De Pula para Zagreb
 ip access-list extended 101
- permit gre host SUBSTITUIR_IP_WAN_PULA host SUBSTITUIR_IP_WAN_ZAGREB
+ permit gre host 172.16.201.65 host 172.16.201.54
 ! ACL 102: De Pula para Split
 ip access-list extended 102
- permit gre host SUBSTITUIR_IP_WAN_PULA host SUBSTITUIR_IP_WAN_SPLIT
+ permit gre host 172.16.201.65 host 172.16.201.57
 
 ! Túnel para Zagreb
 interface Tunnel0
  description Tunnel PULA-ZAGREB
  ip address 10.0.0.2 255.255.255.252
  tunnel source GigabitEthernet0/0
- tunnel destination SUBSTITUIR_IP_WAN_ZAGREB
+ tunnel destination 172.16.201.54
 !
 ! Túnel para Split (Mesh)
 interface Tunnel1
  description Tunnel PULA-SPLIT
  ip address 10.0.0.9 255.255.255.252
  tunnel source GigabitEthernet0/0
- tunnel destination SUBSTITUIR_IP_WAN_SPLIT
+ tunnel destination 172.16.201.57
 conf t
 
 ! --- Phase 1: ISAKMP Policy ---
@@ -208,9 +209,9 @@ exit
 
 ! --- Keys (Pre-Shared) ---
 ! Chave para Zagreb
-crypto isakmp key z4gr3bPvl4 address SUBSTITUIR_IP_WAN_ZAGREB
+crypto isakmp key z4gr3bPvl4 address 172.16.201.54
 ! Chave para Split
-crypto isakmp key Pvl4$pl1t address SUBSTITUIR_IP_WAN_SPLIT
+crypto isakmp key Pvl4$pl1t address 172.16.201.57
 
 ! --- Phase 2: Transform Set ---
 crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
@@ -261,7 +262,6 @@ conf t
 access-list 1 permit 172.20.0.0 0.0.255.255
 
 ! --- b. Dynamic NAT ---
-! [cite_start]Assume G0/0 como a interface WAN (DHCP) [cite: 128]
 ip nat inside source list 1 interface GigabitEthernet0/0 overload
 
 ! --- Interfaces ---
@@ -278,33 +278,33 @@ interface range Loopback0, Loopback1, Loopback2
 conf t
 ! Criar o pool DHCP para os telefones em Pula
 ip dhcp pool VOIP-PULA
- network 172.20.11.64 255.255.255.224 [cite: 115]
+ network 172.20.11.64 255.255.255.224
  default-router 172.20.11.65
- option 150 ip 172.20.11.65 [cite: 341]
+ option 150 ip 172.20.11.65 
 exit
 
 telephony-service
- max-ephones 5 [cite: 345]
- max-dn 10 [cite: 346]
- ip source-address 172.20.11.65 port 2000 [cite: 347]
- system message PULA-VOICE [cite: 348]
- create cnf-files [cite: 351]
+ max-ephones 5 
+ max-dn 10
+ ip source-address 172.20.11.65 port 2000
+ system message PULA-VOICE 
+ create cnf-files
 exit
 
 ephone-dn 1
- number 4001 [cite: 354]
+ number 4001
 ephone-dn 2
- number 4002 [cite: 354]
+ number 4002 
 
 
 
 conf t
 ! Sincroniza com o IP da interface LAN do RT1-Zg
-ntp server 172.20.7.97 [cite: 116, 147]
+ntp server 172.20.7.97
 exit
 
 
-
+conf t
 ip access-list standard ACL-SNMP
  permit host 172.20.7.35
  deny any
@@ -322,6 +322,7 @@ line vty 0 15
 
 conf t
 ! --- Configuração de SYSLOG ---
+
 logging host 172.20.7.35
 logging trap informational
 

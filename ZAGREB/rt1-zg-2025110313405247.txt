@@ -68,19 +68,6 @@ ip nat inside source static tcp 172.20.7.36 443 interface GigabitEthernet0/2 443
 ip nat inside source static tcp 172.20.7.36 22 interface GigabitEthernet0/2 22
 
 ip route 0.0.0.0 0.0.0.0 dhcp
-
-! --- ACLS PARA VPN 
-! Substituir IP_ZAGREB pelo IP da tua interface G0/2
-! Substituir IP_PULA e IP_SPLIT pelos IPs remotos
-
-ip access-list extended 101
- permit gre host IP_ZAGREB host IP_PULA
- deny ip any any
-
-ip access-list extended 102
- permit gre host IP_ZAGREB host IP_SPLIT
- deny ip any any
-
 ! --- CONFIGURAÇÃO IPSEC ---
 crypto isakmp policy 100
  encr aes 128
@@ -219,9 +206,9 @@ exit
 
 ! --- Keys (Pre-Shared) ---
 ! Chave para Pula
-crypto isakmp key z4gr3bPvl4 address SUBSTITUIR_IP_WAN_PULA
+crypto isakmp key z4gr3bPvl4 address 172.16.201.65
 ! Chave para Split
-crypto isakmp key z4gr3b$pl1t address SUBSTITUIR_IP_WAN_SPLIT
+crypto isakmp key z4gr3b$pl1t address 172.16.201.57
 
 ! --- Phase 2: Transform Set ---
 crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
@@ -233,6 +220,17 @@ exit
 
 !!!!! ATÉ AQUI !!!!!!!!!
 ! VER IPS DE CADA PORTA E DEFINIR AQUI NOS SUBSTITUIR
+! --- ACLS PARA VPN 
+! Substituir IP_ZAGREB pelo IP da tua interface G0/2
+! Substituir IP_PULA e IP_SPLIT pelos IPs remotos
+
+ip access-list extended 101
+ permit gre host 172.16.201.64 host 172.16.201.65
+ deny ip any any
+
+ip access-list extended 102
+ permit gre host 172.16.201.64 host 172.16.201.57
+ deny ip any any
 
 
 conf t
@@ -247,10 +245,10 @@ dial-peer voice 5000 voip
 ! --- ACLs para definir tráfego GRE ---
 ! ACL 101: De Zagreb para Pula
 ip access-list extended 101
- permit gre host SUBSTITUIR_IP_WAN_ZAGREB host SUBSTITUIR_IP_WAN_PULA
+ permit gre host 172.16.201.64 host 172.16.201.65
 ! ACL 102: De Zagreb para Split
 ip access-list extended 102
- permit gre host SUBSTITUIR_IP_WAN_ZAGREB host SUBSTITUIR_IP_WAN_SPLIT
+ permit gre host 172.16.201.64 host 172.16.201.57
 
 ! --- Crypto Map ---
 crypto map CROATIA 10 ipsec-isakmp
@@ -301,32 +299,28 @@ interface GigabitEthernet0/1
 
 
 conf t
-! O pool DHCP para a VLAN 40 já existe, garante que tem a Option 150 [cite: 101]
 ip dhcp pool VLAN40-VOIP
- option 150 ip 172.20.0.10 [cite: 101]
+ option 150 ip 172.20.0.10
 exit
 
 telephony-service
  max-ephones 10 [cite: 107]
  max-dn 20 [cite: 107]
- ip source-address 172.20.0.10 port 2000 [cite: 107]
- system message ZAGREB-VOICE [cite: 107]
- create cnf-files [cite: 107]
+ ip source-address 172.20.0.10 port 2000
+ system message ZAGREB-VOICE
+ create cnf-files
 exit
 
-! Configurar os números (Extensions)
 ephone-dn 1
- number 2001 [cite: 107]
+ number 2001
 ephone-dn 2
- number 2002 [cite: 107]
+ number 2002
 
 
 conf t
-! --- Configuração de SYSLOG ---
 logging host 172.20.7.35
 logging trap informational
 
-! --- Configuração de SNMP ---
 snmp-server community cisco RO ACL-SNMP
 snmp-server enable traps
 snmp-server host 172.20.7.35 version 2c cisco

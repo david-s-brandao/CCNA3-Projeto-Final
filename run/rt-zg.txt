@@ -1,0 +1,461 @@
+Current configuration : 12677 bytes
+!
+! Last configuration change at 15:58:53 UTC Wed Feb 11 2026 by cisco
+! NVRAM config last updated at 14:44:04 UTC Wed Feb 11 2026 by cisco
+!
+version 15.7
+no service timestamps debug uptime
+no service timestamps log uptime
+service password-encryption
+!
+hostname RT1-Zg-777
+!
+boot-start-marker
+boot-end-marker
+!
+!
+security passwords min-length 10
+enable secret 5 $1$mERr$UIEd/gKB8Xu9v11aSkZ1n0
+!
+no aaa new-model
+memory-size iomem 5
+!
+!         
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+no ip domain lookup
+ip domain name isepacademy.ccna.itn.com
+ip host MLS1-Zg 172.20.7.98
+ip host MLS2-Zg 172.20.7.99
+ip host RT1-Pl 10.0.0.2
+ip host RT1-St 10.0.0.6
+ip host RT1-Zg 10.0.0.5
+ip host SW1-Zg 172.20.7.3
+ip host SW2-Zg 172.20.7.4
+ip cef
+login block-for 300 attempts 3 within 120
+no ipv6 cef
+!         
+multilink bundle-name authenticated
+!
+!
+!
+!
+!
+!
+!
+voice-card 0
+!
+!
+!
+!
+!
+!
+!
+!
+vxml logging-tag
+license udi pid CISCO2911/K9 sn FCZ160220UC
+license accept end user agreement
+license boot module c2900 technology-package securityk9
+license boot module c2900 technology-package uck9
+!         
+!
+vtp mode transparent
+username cisco privilege 15 secret 5 $1$g6qT$2mOK/GtFudaQGvqg2LiCs.
+username admin privilege 15 secret 5 $1$1P83$Z2rlJk9X1Fo.3nqojF2dt0
+!
+redundancy
+!
+!
+!
+!
+!
+! 
+!
+crypto isakmp policy 100
+ encr aes
+ authentication pre-share
+ group 5
+crypto isakmp key z4gr3b$pl1t address 172.16.201.41  
+crypto isakmp key z4gr3bPvl4 address 172.16.201.43  
+crypto isakmp key z4gr3bPvl4 address 172.16.201.65  
+crypto isakmp key z4gr3b$pl1t address 172.16.201.57  
+crypto isakmp key z4gr3b$pl1t address 172.16.201.67  
+!         
+!
+crypto ipsec transform-set TSET-NEW esp-aes esp-sha-hmac 
+ mode tunnel
+crypto ipsec transform-set TSET esp-aes esp-sha-hmac 
+ mode tunnel
+!
+!
+!
+crypto map CROATIA 10 ipsec-isakmp 
+ set peer 172.16.201.65
+ set transform-set TSET 
+ match address 101
+crypto map CROATIA 20 ipsec-isakmp 
+ set peer 172.16.201.57
+ set transform-set TSET 
+ match address 102
+crypto map CROATIA 30 ipsec-isakmp 
+ set peer 172.16.201.64
+ set transform-set TSET 
+ match address 103
+crypto map CROATIA 40 ipsec-isakmp 
+ set peer 172.16.201.67
+ set transform-set TSET 
+ match address 104
+!
+!
+!
+!
+!
+interface Tunnel0
+ description TUNNEL-ZAGREB-PULA
+ ip address 10.0.0.1 255.255.255.252
+ ip mtu 1400
+ ip tcp adjust-mss 1360
+ ip ospf 100 area 0
+ tunnel source 172.16.201.54
+ tunnel destination 172.16.201.65
+!
+interface Tunnel1
+ description TUNNEL-ZAGREB-SPLIT
+ ip address 10.0.0.5 255.255.255.252
+ ip mtu 1400
+ ip nat inside
+ ip virtual-reassembly in
+ ip tcp adjust-mss 1360
+ ip ospf 100 area 0
+ tunnel source 172.16.201.54
+ tunnel destination 172.16.201.67
+!
+interface Embedded-Service-Engine0/0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet0/0
+ description CONNECTION TO MLS1-ZG  
+ ip address 172.20.7.97 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf 100 area 0
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1
+ description CONNECTION TO MLS2-ZG  
+ ip address 172.20.7.101 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly in
+ ip ospf 100 area 0
+ duplex auto
+ speed auto
+!
+interface GigabitEthernet0/1.20
+ ip helper-address 172.20.7.36
+!
+interface GigabitEthernet0/1.30
+ ip helper-address 172.20.7.36
+!
+interface GigabitEthernet0/1.50
+ ip helper-address 172.20.7.36
+!
+interface GigabitEthernet0/1.60
+ ip helper-address 172.20.7.36
+!
+interface GigabitEthernet0/2
+ ip address dhcp
+ ip nat outside
+ ip virtual-reassembly in
+ duplex auto
+ speed auto
+ crypto map CROATIA
+!
+interface Serial0/0/0
+ no ip address
+ shutdown
+ clock rate 2000000
+!
+interface Serial0/0/1
+ no ip address
+ shutdown
+ clock rate 2000000
+!
+router ospf 100
+ router-id 4.4.4.4
+ passive-interface default
+ no passive-interface Tunnel0
+ no passive-interface Tunnel1
+ network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.0.4 0.0.0.3 area 0
+ network 172.20.7.32 0.0.0.31 area 0
+ network 172.20.7.96 0.0.0.3 area 0
+ network 172.20.7.100 0.0.0.3 area 0
+ network 172.20.7.0 0.0.0.255 area 0
+!
+ip forward-protocol nd
+!         
+no ip http server
+no ip http secure-server
+ip flow-export version 9
+!
+ip nat source static tcp 172.20.7.35 22 interface GigabitEthernet0/2 22
+ip nat inside source list NAT-NETWORKS interface GigabitEthernet0/2 overload
+ip nat inside source static tcp 172.20.7.36 80 interface GigabitEthernet0/2 80
+ip nat inside source static tcp 172.20.7.36 443 interface GigabitEthernet0/2 443
+ip nat inside source static tcp 172.20.7.36 22 interface GigabitEthernet0/2 22
+ip route 0.0.0.0 0.0.0.0 172.16.201.254
+ip route 172.20.7.0 255.255.255.0 172.20.7.98
+ip route 172.20.7.0 255.255.255.0 172.20.7.102 120
+ip route 0.0.0.0 0.0.0.0 dhcp
+ip ssh version 2
+!
+ip access-list standard NAT-NETWORKS
+ permit 10.0.0.0 0.0.0.255
+ permit 172.20.0.0 0.0.255.255
+!
+ip access-list extended ACL-ZG-PULA
+ permit gre host 172.16.201.45 host 172.16.201.43
+ permit gre host 172.16.201.43 host 172.16.201.45
+ deny   ip any any
+ip access-list extended ACL-ZG-SPLIT
+ permit gre host 172.16.201.45 host 172.16.201.41
+ permit gre host 172.16.201.41 host 172.16.201.45
+ deny   ip any any
+!
+logging host 172.20.7.35
+!
+!
+snmp-server community cisco RO ACL-SNMP
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps vrrp
+snmp-server enable traps flowmon
+snmp-server enable traps transceiver all
+snmp-server enable traps ds1
+snmp-server enable traps call-home message-send-fail server-fail
+snmp-server enable traps tty
+snmp-server enable traps eigrp
+snmp-server enable traps ospf state-change
+snmp-server enable traps ospf errors
+snmp-server enable traps ospf retransmit
+snmp-server enable traps ospf lsa
+snmp-server enable traps ospf cisco-specific state-change nssa-trans-change
+snmp-server enable traps ospf cisco-specific state-change shamlink interface
+snmp-server enable traps ospf cisco-specific state-change shamlink neighbor
+snmp-server enable traps ospf cisco-specific errors
+snmp-server enable traps ospf cisco-specific retransmit
+snmp-server enable traps ospf cisco-specific lsa
+snmp-server enable traps gatekeeper
+snmp-server enable traps xgcp
+snmp-server enable traps license
+snmp-server enable traps vrrpv3
+snmp-server enable traps envmon
+snmp-server enable traps flash insertion removal low-space
+snmp-server enable traps auth-framework sec-violation auth-fail
+snmp-server enable traps c3g
+snmp-server enable traps LTE
+snmp-server enable traps ds3
+snmp-server enable traps adslline
+snmp-server enable traps vdsl2line
+snmp-server enable traps icsudsu
+snmp-server enable traps isdn call-information
+snmp-server enable traps isdn layer2
+snmp-server enable traps isdn chan-not-avail
+snmp-server enable traps isdn ietf
+snmp-server enable traps ds0-busyout
+snmp-server enable traps ds1-loopback
+snmp-server enable traps energywise
+snmp-server enable traps mac-notification
+snmp-server enable traps trustsec-sxp conn-srcaddr-err msg-parse-err conn-config-err binding-err conn-up conn-down binding-expn-fail oper-nodeid-change binding-conflict
+snmp-server enable traps bgp cbgp2
+snmp-server enable traps isis
+snmp-server enable traps ospfv3 state-change
+snmp-server enable traps ospfv3 errors
+snmp-server enable traps bfd
+snmp-server enable traps aaa_server
+snmp-server enable traps atm subif
+snmp-server enable traps cef resource-failure peer-state-change peer-fib-state-change inconsistency
+snmp-server enable traps memory bufferpeak
+snmp-server enable traps cnpd
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps config-ctid
+snmp-server enable traps entity-ext
+snmp-server enable traps entity
+snmp-server enable traps fru-ctrl
+snmp-server enable traps resource-policy
+snmp-server enable traps event-manager
+snmp-server enable traps frame-relay multilink bundle-mismatch
+snmp-server enable traps frame-relay
+snmp-server enable traps frame-relay subif
+snmp-server enable traps hsrp
+snmp-server enable traps ipmulticast
+snmp-server enable traps mempool
+snmp-server enable traps msdp
+snmp-server enable traps mvpn
+snmp-server enable traps nhrp nhs
+snmp-server enable traps nhrp nhc
+snmp-server enable traps nhrp nhp
+snmp-server enable traps nhrp quota-exceeded
+snmp-server enable traps pim neighbor-change rp-mapping-change invalid-pim-message
+snmp-server enable traps pppoe
+snmp-server enable traps cpu threshold
+snmp-server enable traps rsvp
+snmp-server enable traps syslog
+snmp-server enable traps l2tun session
+snmp-server enable traps l2tun pseudowire status
+snmp-server enable traps vtp
+snmp-server enable traps waas 
+snmp-server enable traps pki
+snmp-server enable traps ethernet cfm cc mep-up mep-down cross-connect loop config
+snmp-server enable traps ethernet cfm crosscheck mep-missing mep-unknown service-up
+snmp-server enable traps ethernet evc status create delete
+snmp-server enable traps ipsla
+snmp-server enable traps dial
+snmp-server enable traps dsp card-status
+snmp-server enable traps dsp oper-state
+snmp-server enable traps dsp video-usage
+snmp-server enable traps dsp video-out-of-resource
+snmp-server enable traps gdoi gm-start-registration
+snmp-server enable traps gdoi gm-registration-complete
+snmp-server enable traps gdoi gm-re-register
+snmp-server enable traps gdoi gm-rekey-rcvd
+snmp-server enable traps gdoi gm-rekey-fail
+snmp-server enable traps gdoi ks-rekey-pushed
+snmp-server enable traps gdoi gm-incomplete-cfg
+snmp-server enable traps gdoi ks-no-rsa-keys
+snmp-server enable traps gdoi ks-new-registration
+snmp-server enable traps gdoi ks-reg-complete
+snmp-server enable traps gdoi ks-role-change
+snmp-server enable traps gdoi ks-gm-deleted
+snmp-server enable traps gdoi ks-peer-reachable
+snmp-server enable traps gdoi ks-peer-unreachable
+snmp-server enable traps firewall serverstatus
+snmp-server enable traps ike policy add
+snmp-server enable traps ike policy delete
+snmp-server enable traps ike tunnel start
+snmp-server enable traps ike tunnel stop
+snmp-server enable traps ipsec cryptomap add
+snmp-server enable traps ipsec cryptomap delete
+snmp-server enable traps ipsec cryptomap attach
+snmp-server enable traps ipsec cryptomap detach
+snmp-server enable traps ipsec tunnel start
+snmp-server enable traps ipsec tunnel stop
+snmp-server enable traps ipsec too-many-sas
+snmp-server enable traps rf
+snmp-server enable traps bulkstat collection transfer
+snmp-server enable traps vrfmib vrf-up vrf-down vnet-trunk-up vnet-trunk-down
+snmp-server enable traps ethernet cfm alarm
+snmp-server enable traps ccme
+snmp-server enable traps srst
+snmp-server enable traps voice
+snmp-server enable traps dnis
+snmp-server host 172.20.7.35 version 2c cisco 
+access-list 1 permit 172.20.0.0 0.0.255.255
+access-list 101 permit gre host 172.16.201.54 host 172.16.201.65
+access-list 102 permit gre host 172.16.201.54 host 172.16.201.57
+access-list 102 permit gre host 172.16.201.54 host 172.16.201.67
+access-list 103 permit gre host 172.16.201.54 host 172.16.201.64
+access-list 104 permit gre host 172.16.201.54 host 172.16.201.67
+!
+control-plane
+!
+ !
+ !
+ !
+ !
+!
+mgcp behavior rsip-range tgcp-only
+mgcp behavior comedia-role none
+mgcp behavior comedia-check-media-src disable
+mgcp behavior comedia-sdp-force disable
+!
+mgcp profile default
+!
+!         
+!
+!
+dial-peer voice 4000 voip
+ destination-pattern 4...
+ session target ipv4:10.0.0.2
+!
+dial-peer voice 5000 voip
+ destination-pattern 5...
+ session target ipv4:10.0.0.6
+!
+!
+!
+!
+gatekeeper
+ shutdown
+!
+!
+telephony-service
+ max-ephones 10
+ max-dn 20
+ ip source-address 172.20.7.97 port 2000
+ system message ZAGREB-VOICE
+ max-conferences 8 gain -6
+ transfer-system full-consult
+ create cnf-files version-stamp Jan 01 2002 00:00:00
+!
+!
+ephone-dn  1
+ number 2001
+!
+!
+ephone-dn  2
+ number 2002
+!
+banner motd ^C
+######################################################################
+#                                                                    #
+#                        Private Property                            #
+#            Unnauthorized access will not be tolerated              #
+#                           RT1-Zg-777                               #
+#                                                                    #
+######################################################################
+^C
+!
+line con 0
+ exec-timeout 0 30
+ password 7 00071F071748080A0E325F
+ logging synchronous
+ login local
+line aux 0
+ password 7 0307570A151C22404F1A0A
+ login
+line 2
+ no activation-character
+ no exec
+ transport preferred none
+ transport output pad telnet rlogin lapb-ta mop udptn v120 ssh
+ stopbits 1
+line vty 0 4
+ exec-timeout 0 30
+ privilege level 15
+ login local
+ transport input ssh
+line vty 5 15
+ exec-timeout 0 30
+ privilege level 15
+ login local
+ transport input ssh
+!         
+scheduler allocate 20000 1000
+ntp source GigabitEthernet0/0
+ntp master 3
+ntp server pool.ntp.org
+ntp server time.google.com
+!
+end
