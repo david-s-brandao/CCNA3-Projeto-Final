@@ -109,6 +109,32 @@ ip http server
 ip http secure-server
 ip http authentication local
 
+
+
+
+
+
+
+
+
+
+
+!NEED TO REVIEW  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ! --- ROTA PADRÃO ---
 ip route 0.0.0.0 0.0.0.0 172.20.7.33
 
