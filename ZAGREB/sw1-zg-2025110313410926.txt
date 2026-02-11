@@ -70,12 +70,12 @@ spann portf trunk
 ip dhcp snooping trust
 ip arp inspection trust
 no shut
-int range f0/2-5  
+int range f0/1-5  
 description ACCESS TO SERVERS
 sw acc vlan 10  
 sw mode acc
 spann portf
-no shut 
+shut 
 int range f0/6-9
 description ACCESS TO VOIP and ADMIN
 sw acc vlan 20  
@@ -173,7 +173,7 @@ ip access-list standard SSH-ACCESS
 line vty 0 15
  access-class SSH-ACCESS in
 end
-conf t
+
 ip host rt1-zg 172.20.7.97
 ip host mls1-zg 172.20.7.4
 ip host mls2-zg 172.20.7.5

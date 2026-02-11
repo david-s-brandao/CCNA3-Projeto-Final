@@ -138,7 +138,7 @@ ip host split-pula 10.0.0.10
 
 
 conf t
-ntp server 172.20.7.97 [cite: 96]
+ntp server 172.20.7.97
 exit
 
 
