@@ -1,3 +1,440 @@
+Current configuration : 11076 bytes
+!
+! Last configuration change at 03:08:03 UTC Mon Mar 1 1993 by cisco
+!
+version 15.0
+no service pad
+service timestamps debug datetime msec
+service timestamps log datetime msec
+service password-encryption
+!
+hostname SW2-Zg-777
+!
+boot-start-marker
+boot-end-marker
+!
+!
+username cisco privilege 15 secret 5 $1$n5n8$gyvzOUuL63.6P7llN58kX.
+no aaa new-model
+system mtu routing 1500
+ip arp inspection vlan 10,20,30
+!
+!
+ip dhcp snooping vlan 10,20,30
+no ip domain-lookup
+ip domain-name isepacademy.ccna.itn.com
+ip host split-pula 10.0.0.10
+ip host pula-split 10.0.0.9
+ip host split-zagreb 10.0.0.6
+ip host zagreb-split 10.0.0.5
+ip host pula-zagreb 10.0.0.2
+ip host zagreb-pula 10.0.0.1
+ip host sw1-st 172.20.14.42
+ip host rt1-st 172.20.14.41
+ip host sw1-pl 172.20.11.106
+ip host rt1-pl 172.20.11.105
+ip host srv-dhcp 172.20.7.36
+ip host sw2-zg 172.20.7.3
+ip host sw1-zg 172.20.7.2
+ip host mls2-zg 172.20.7.5
+ip host mls1-zg 172.20.7.4
+ip host rt1-zg 172.20.7.97
+ip host pc-b 172.20.5.4
+ip host pc-a 172.20.4.4
+ip host pc-wlc 172.20.7.8
+ip host ap 172.20.7.7
+ip host wlc 172.20.7.6
+ip host mls2 172.20.7.5
+ip host mls1 172.20.7.4
+!
+!
+!
+!
+!
+!
+!
+!
+!
+spanning-tree mode rapid-pvst
+spanning-tree portfast bpduguard default
+spanning-tree extend system-id
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+!
+!
+!
+!
+!         
+interface FastEthernet0/1
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/2
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/3
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/4
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/5
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/6
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown 
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/7
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/8
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/9
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/10
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ switchport port-security
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/11
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ shutdown
+ spanning-tree portfast
+!
+interface FastEthernet0/12
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/13
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/14
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!         
+interface FastEthernet0/15
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/16
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/17
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/18
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/19
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
+ switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/20
+ description CONNECTION TO PC-B
+ switchport access vlan 30
+ switchport voice vlan 40
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface FastEthernet0/21
+ description CONNECTION TO AP
+ switchport trunk native vlan 5
+ switchport trunk allowed vlan 5,6,50,60
+ switchport mode trunk
+ switchport nonegotiate
+ spanning-tree portfast trunk
+!
+interface FastEthernet0/22
+ description CONNECTION TO AP
+ switchport trunk native vlan 5
+ switchport trunk allowed vlan 5,6,50,60
+ switchport mode trunk
+ switchport nonegotiate
+ shutdown
+ spanning-tree portfast trunk
+!
+interface FastEthernet0/23
+ description CONNECTION TO WLC
+ switchport trunk native vlan 6
+ switchport trunk allowed vlan 5,6,50,60
+ switchport mode trunk
+ switchport nonegotiate
+ ip arp inspection trust
+ spanning-tree portfast trunk
+ ip dhcp snooping trust
+!
+interface FastEthernet0/24
+ description PORT OFF
+ switchport access vlan 99
+ switchport mode access
+ shutdown
+ spanning-tree portfast
+ ip dhcp snooping limit rate 5
+!
+interface GigabitEthernet0/1
+ description CONNECTION TO MLS1
+ switchport trunk native vlan 7
+ switchport trunk allowed vlan 1-98,100-4094
+ switchport mode trunk
+ switchport nonegotiate
+ ip arp inspection trust
+ ip dhcp snooping trust
+!
+interface GigabitEthernet0/2
+ description CONNECTION TO MLS2
+ switchport trunk native vlan 7
+ switchport trunk allowed vlan 1-98,100-4094
+ switchport mode trunk
+ switchport nonegotiate
+ ip arp inspection trust
+ ip dhcp snooping trust
+!         
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan6
+ description VLAN 6 SW2 IP  
+ ip address 172.20.7.3 255.255.255.224
+!
+ip default-gateway 172.20.7.1
+ip http server
+ip http secure-server
+!
+ip access-list standard ACL-SNMP
+ permit 172.20.7.35
+ deny   any
+ip access-list standard SSH-ACCESS
+ permit 172.20.4.0 0.0.0.255
+ permit 172.20.5.0 0.0.0.255
+ deny   any
+ permit 172.20.7.0 0.0.0.255
+ip source binding 0897.986A.FF7D vlan 30 172.20.5.4 interface Fa0/20
+logging host 172.20.7.35
+snmp-server community cisco RO ACL-SNMP
+snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server enable traps transceiver all
+snmp-server enable traps call-home message-send-fail server-fail
+snmp-server enable traps tty
+snmp-server enable traps cluster
+snmp-server enable traps entity
+snmp-server enable traps cpu threshold
+snmp-server enable traps vtp
+snmp-server enable traps vlancreate
+snmp-server enable traps vlandelete
+snmp-server enable traps flash insertion removal
+snmp-server enable traps port-security
+snmp-server enable traps auth-framework sec-violation
+snmp-server enable traps dot1x auth-fail-vlan guest-vlan no-auth-fail-vlan no-guest-vlan
+snmp-server enable traps envmon fan shutdown supply temperature status
+snmp-server enable traps power-ethernet police
+snmp-server enable traps fru-ctrl
+snmp-server enable traps event-manager
+snmp-server enable traps config-copy
+snmp-server enable traps config
+snmp-server enable traps config-ctid
+snmp-server enable traps energywise
+snmp-server enable traps vstack
+snmp-server enable traps bridge newroot topologychange
+snmp-server enable traps stpx inconsistency root-inconsistency loop-inconsistency
+snmp-server enable traps syslog
+snmp-server enable traps mac-notification change move threshold
+snmp-server enable traps vlan-membership
+snmp-server enable traps errdisable
+snmp-server host 172.20.7.35 version 2c cisco 
+!
+vstack
+banner motd ^C
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                          SW2-Zg-777                                #
+#                                                                    #
+######################################################################
+^C
+!
+line con 0
+ password 7 1511070D17392828292026
+ login local
+line vty 0 4
+ access-class SSH-ACCESS in
+ exec-timeout 0 30
+ privilege level 15
+ login local
+ transport input ssh
+line vty 5 15
+ access-class SSH-ACCESS in
+ exec-timeout 0 30
+ privilege level 15
+ login local
+ transport input ssh
+!
+ntp server 172.20.7.97
+end
+
+SW2-Zg-777#$                                                                 
+MLS1-Zg-777#
+MLS1-Zg-777#
+MLS1-Zg-777#
+MLS1-Zg-777#sh run
+Building configuration...
+
+Current configuration : 19006 bytes
 !
 ! Last configuration change at 11:32:03 UTC Wed Feb 11 2026 by cisco
 !
@@ -609,8 +1046,7 @@ snmp-server enable traps mpls rfc vpn
 snmp-server host 172.20.7.35 version 2c cisco 
 !
 control-plane
- --More-- 
-Feb 11 16:09:14.344: %SW_DAI-4-DHCP_SNOOPING_DENY: 1 Invalid ARPs (Req) on Po1, vlan 10.([7069.5aa1.6c46/172.20.7.37/0000.0000.0000/172.20.7.36/16:09:13 UTC Wed Feb service-policy input system-cpp-policy
+ service-policy input system-cpp-policy
 !
 !
 line con 0

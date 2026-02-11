@@ -1,11 +1,11 @@
-Current configuration : 12677 bytes
+Current configuration : 12630 bytes
 !
-! Last configuration change at 15:58:53 UTC Wed Feb 11 2026 by cisco
+! Last configuration change at 17:56:25 UTC Wed Feb 11 2026 by cisco
 ! NVRAM config last updated at 14:44:04 UTC Wed Feb 11 2026 by cisco
 !
 version 15.7
-no service timestamps debug uptime
-no service timestamps log uptime
+service timestamps debug datetime msec
+service timestamps log datetime msec
 service password-encryption
 !
 hostname RT1-Zg-777
@@ -125,7 +125,7 @@ interface Tunnel0
  ip mtu 1400
  ip tcp adjust-mss 1360
  ip ospf 100 area 0
- tunnel source 172.16.201.54
+ tunnel source GigabitEthernet0/2
  tunnel destination 172.16.201.65
 !
 interface Tunnel1
@@ -136,7 +136,7 @@ interface Tunnel1
  ip virtual-reassembly in
  ip tcp adjust-mss 1360
  ip ospf 100 area 0
- tunnel source 172.16.201.54
+ tunnel source GigabitEthernet0/2
  tunnel destination 172.16.201.67
 !
 interface Embedded-Service-Engine0/0
@@ -364,7 +364,6 @@ snmp-server host 172.20.7.35 version 2c cisco
 access-list 1 permit 172.20.0.0 0.0.255.255
 access-list 101 permit gre host 172.16.201.54 host 172.16.201.65
 access-list 102 permit gre host 172.16.201.54 host 172.16.201.57
-access-list 102 permit gre host 172.16.201.54 host 172.16.201.67
 access-list 103 permit gre host 172.16.201.54 host 172.16.201.64
 access-list 104 permit gre host 172.16.201.54 host 172.16.201.67
 !
@@ -382,8 +381,8 @@ mgcp behavior comedia-sdp-force disable
 !
 mgcp profile default
 !
-!         
 !
+!         
 !
 dial-peer voice 4000 voip
  destination-pattern 4...
@@ -451,7 +450,7 @@ line vty 5 15
  privilege level 15
  login local
  transport input ssh
-!         
+!
 scheduler allocate 20000 1000
 ntp source GigabitEthernet0/0
 ntp master 3
