@@ -44,7 +44,8 @@ redundancy
 !
 ! --- VPN / IPSEC CONFIGS ---
 crypto isakmp policy 100
- encr aes
+ encr aes 128
+ hash sha
  authentication pre-share
  group 5
 !
@@ -76,6 +77,8 @@ crypto map CROATIA 40 ipsec-isakmp
  set transform-set TSET 
  match address 104
 !
+exit
+crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
 ! --- INTERFACES ---
 interface Tunnel0
  description TUNNEL-ZAGREB-PULA
@@ -177,6 +180,7 @@ ip flow-export version 9
 ip nat inside source list NAT-NETWORKS interface GigabitEthernet0/2 overload
 ip nat inside source static tcp 172.20.7.36 80 interface GigabitEthernet0/2 80
 ip nat inside source static tcp 172.20.7.36 443 interface GigabitEthernet0/2 443
+ip nat inside source static tcp 172.20.7.36 22 interface GigabitEthernet0/2 22
 ip route 0.0.0.0 0.0.0.0 172.16.201.254
 ip route 172.20.7.0 255.255.255.0 172.20.7.98
 ip route 172.20.7.0 255.255.255.0 172.20.7.102 120

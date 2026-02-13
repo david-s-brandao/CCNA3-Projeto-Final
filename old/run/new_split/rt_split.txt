@@ -174,6 +174,7 @@ interface GigabitEthernet0/1.60
  description VLAN 60 - GUESTS
  encapsulation dot1Q 60
  ip address 172.20.14.1 255.255.255.224
+ ip access-group GUEST-ONLY-INTERNET in
  ip nat inside
 !  
 interface GigabitEthernet0/2  
@@ -186,6 +187,7 @@ interface GigabitEthernet0/2
 ip route 0.0.0.0 0.0.0.0 dhcp
 !
 router ospf 100
+default-information originate always
  router-id 3.3.3.3
  passive-interface default
  no passive-interface GigabitEthernet0/1
@@ -199,9 +201,8 @@ router ospf 100
  network 172.20.12.0 0.0.0.255 area 0
  network 172.20.14.0 0.0.0.255 area 0
 !
-ip access-list extended NAT-ACL
- deny ip 172.20.0.0 0.0.255.255 172.16.201.0 0.0.0.255
- permit ip 172.20.0.0 0.0.255.255 any
+ip access-list standard NAT-ACL
+ permit ip 172.20.0.0 0.0.255.255
  exit
 ! Aplicar a nova ACL no NAT
 no ip nat inside source list 1 interface GigabitEthernet0/0 overload

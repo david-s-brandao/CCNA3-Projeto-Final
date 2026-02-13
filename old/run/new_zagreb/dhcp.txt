@@ -52,7 +52,8 @@ ip dhcp pool VLAN40-VOIP
  network 172.20.11.64 255.255.255.224
  default-router 172.20.11.65 
  dns-server 8.8.8.8 
- option 150 ip 172.20.11.65 
+ option 150 ip 172.20.0.4
+ domain-name isepacademy.ccna.itn.com
 !
 ! --- DHCP IPv6 POOLS ---
 ipv6 dhcp pool DHCPV6-VLAN20
@@ -118,8 +119,8 @@ interface GigabitEthernet0/1.10
 interface GigabitEthernet0/1.40
  description VLAN 40 - VOIP
  encapsulation dot1Q 40
- ip address 172.20.11.65 255.255.255.224
- ipv6 address FD20::1/64
+ ip address 172.20.0.4 255.255.254.0
+ ipv6 address FD20::4/64
  ipv6 enable
  ipv6 dhcp server DHCPV6-VLAN40
 !
@@ -173,7 +174,7 @@ gatekeeper
 telephony-service
  max-ephones 10
  max-dn 20
- ip source-address 172.20.11.65 port 2000
+ ip source-address 172.20.0.4 port 2000
  system message ZAGREB-VOICE
  cnf-file location flash:
  max-conferences 8 gain -6
@@ -216,6 +217,10 @@ crypto key generate rsa general-keys modulus 2048
 scheduler allocate 20000 1000
 !
 end
+conf t
+ntp server 172.20.7.97
+logging trap informational
+exit
 conf t
 banner motd %
 ######################################################################

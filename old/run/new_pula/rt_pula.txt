@@ -74,9 +74,11 @@ redundancy
 !
 ! --- VPN / IPSEC CONFIGS ---
 crypto isakmp policy 100
- encr aes
+ encr aes 128
+ hash sha
  authentication pre-share
  group 5
+ crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
 !
 crypto isakmp key z4gr3bPvl4 address 172.16.201.45
 crypto isakmp key z4gr3bPvl4 address 172.16.201.54
@@ -216,6 +218,7 @@ interface Serial0/0/1
 !
 ! --- ROUTING & NAT ---
 router ospf 100
+ default information originate always
  router-id 4.4.4.4
  passive-interface default
  no passive-interface GigabitEthernet0/1
@@ -253,9 +256,10 @@ ip access-list standard NAT-PERMIT
  permit 172.20.10.0 0.0.1.255
 !
 ip access-list standard SSH-ACCESS
- no permit 172.20.14.0 0.0.0.63
- permit 172.20.12.0 0.0.0.127
- exit
+ no permit 172.20.12.0 0.0.0.127
+ permit 172.20.10.128 0.0.0.127
+ permit 172.20.4.0 0.0.0.255
+exit
 !
 ! --- ACLs EXTENDIDAS ---
 ip access-list extended GUEST-ONLY-INTERNET
@@ -267,9 +271,8 @@ ip access-list extended NAT-FILTER
  deny   ip 172.20.0.0 0.0.255.255 172.20.0.0 0.0.255.255
  permit ip 172.20.0.0 0.0.255.255 any
 !
-ip access-list extended NAT-FINAL-PL
- deny   ip 172.20.0.0 0.0.255.255 172.20.0.0 0.0.255.255
- permit ip 172.20.0.0 0.0.255.255 any
+ip access-list standard NAT-FINAL-PL
+ permit ip 172.20.0.0 0.0.255.255
 !
 ip access-list extended NAT-VPN-FIX
  deny   ip 172.20.0.0 0.0.255.255 172.20.0.0 0.0.255.255
