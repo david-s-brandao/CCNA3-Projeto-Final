@@ -1,7 +1,7 @@
 enable
 conf t
 no ip domain-lookup
-hostname RT1-Pl
+hostname RT1-Pl-777
 ip domain-name isepacademy.ccna.itn.com
 service password-encryption
 security passwords min-length 10
@@ -14,15 +14,16 @@ transport input ssh
 exec-timeout 0 30
 exit
 login block-for 300 attempts 3 within 120
-banner motd #
-******************************************************************
-** Atencao: Este sistema e propriedade do Governo Portugues. **
-** Acesso nao autorizado e proibido e sujeito a acao legal. **
-** Todas as atividades sao monitorizadas e registadas. **
-** **
-** AVISO: Consulte a Lei n. 109/2009 e o RGPD (UE 2016/679). **
-******************************************************************
-#
+banner motd *
+######################################################################
+#                                                                    #
+#                       Private Property                             #
+#           Unnauthorized access will not be tolerated               #
+#                          RT1-PL-777                                #
+#                                                                    #
+######################################################################
+
+*
 ip host RT1-Zg 172.20.7.1
 ip host SW1-Zg 172.20.7.7
 ip host SW2-Zg 172.20.7.8
