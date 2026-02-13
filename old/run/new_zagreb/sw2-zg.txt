@@ -427,6 +427,7 @@ line vty 5 15
 ntp server 172.20.7.97
 
 conf t
+logging trap informational
 banner motd %
 ######################################################################
 #                                                                    #

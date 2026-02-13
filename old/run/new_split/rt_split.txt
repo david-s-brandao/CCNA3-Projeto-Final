@@ -300,5 +300,8 @@ line vty 0 15
 ! --- GERAR CHAVE RSA (SSH) ---
 crypto key generate rsa general-keys modulus 2048
 !
+
+conf t
+logging trap informational
 end
 write memory

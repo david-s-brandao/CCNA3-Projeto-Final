@@ -268,6 +268,7 @@ crypto key generate rsa general-keys modulus 2048
 !
 end
 conf t
+logging trap informational
 banner motd %
 ######################################################################
 #                                                                    #
