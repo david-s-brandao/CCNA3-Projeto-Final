@@ -1,46 +1,29 @@
-Current configuration : 6118 bytes
+enable
+configure terminal
 !
-! Last configuration change at 18:34:33 UTC Wed Feb 11 2026
-!
-version 15.7
 service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
 !
 hostname SRV-DHCP-777
 !
-boot-start-marker
-boot-end-marker
-!
-!
-!
 no aaa new-model
 memory-size iomem 5
 !
+username cisco privilege 15 secret 5 $1$xyTP$JcqnOB0e/YU5kXn7A7.XD1
 !
+ip domain name isepacademy.ccna.itn.com
+ip cef
+no ipv6 cef
 !
-!
-!         
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-!
-
-
-!
+! --- DHCP IPv4 EXCLUSIONS ---
+ip dhcp excluded-address 172.20.0.1 172.20.0.20
+ip dhcp excluded-address 172.20.2.1 172.20.2.10
 ip dhcp excluded-address 172.20.4.1 172.20.4.10
 ip dhcp excluded-address 172.20.5.1 172.20.5.10
-ip dhcp excluded-address 172.20.2.1 172.20.2.10
 ip dhcp excluded-address 172.20.6.1 172.20.6.10
-ip dhcp excluded-address 172.20.0.1 172.20.0.20
 !
+! --- DHCP IPv4 POOLS ---
 ip dhcp pool VLAN20-ADMIN
  network 172.20.4.0 255.255.255.0
  default-router 172.20.4.1 
@@ -71,10 +54,7 @@ ip dhcp pool VLAN40-VOIP
  dns-server 8.8.8.8 
  option 150 ip 172.20.11.65 
 !
-!
-!
-ip domain name isepacademy.ccna.itn.com
-ip cef
+! --- DHCP IPv6 POOLS ---
 ipv6 dhcp pool DHCPV6-VLAN20
  address prefix FD20:4::/64
  dns-server 2001:4860:4860::8888
@@ -89,7 +69,7 @@ ipv6 dhcp pool DHCPV6-VLAN40
  address prefix FD20::/64
  dns-server 2001:4860:4860::8888
  domain-name isepacademy.ccna.itn.com
-!         
+!
 ipv6 dhcp pool DHCPV6-VLAN50
  address prefix FD20:2::/64
  dns-server 2001:4860:4860::8888
@@ -100,52 +80,9 @@ ipv6 dhcp pool DHCPV6-VLAN60
  dns-server 2001:4860:4860::8888
  domain-name isepacademy.ccna.itn.com
 !
-no ipv6 cef
-!
 multilink bundle-name authenticated
 !
-!
-!
-!
-!
-!
-!
-crypto pki trustpoint TP-self-signed-352411428
- enrollment selfsigned
- subject-name cn=IOS-Self-Signed-Certificate-352411428
- revocation-check none
- rsakeypair TP-self-signed-352411428
-!
-!
-crypto pki certificate chain TP-self-signed-352411428
- certificate self-signed 01
-  30820229 30820192 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
-  30312E30 2C060355 04031325 494F532D 53656C66 2D536967 6E65642D 43657274 
-  69666963 6174652D 33353234 31313432 38301E17 0D323630 32313130 39323935 
-  385A170D 33303031 30313030 30303030 5A303031 2E302C06 03550403 1325494F 
-  532D5365 6C662D53 69676E65 642D4365 72746966 69636174 652D3335 32343131 
-  34323830 819F300D 06092A86 4886F70D 01010105 0003818D 00308189 02818100 
-  FA122E9B 24BB0BEF 52583444 A1331C3B 81EC125A 6CE60A5C 37254B6F B0C52966 
-  B363B9E7 964BBC42 F24D06BC 17C91E56 172DE324 63FDD17E 3083A1A7 082FC63C 
-  3E1FCEFD DC79C08A CBD8FB28 4ACC964E 7F7FF70C 74CF2C40 696DF248 FA22B062 
-  C6C6F7F6 3BE109A5 51C42A08 558CF286 2CED9612 5ABDD221 1B13A50F F25256D3 
-  02030100 01A35330 51300F06 03551D13 0101FF04 05300301 01FF301F 0603551D 
-  23041830 168014A7 7C517ED1 603FECD5 285029B4 29AAE0E1 E2C04230 1D060355 
-  1D0E0416 0414A77C 517ED160 3FECD528 5029B429 AAE0E1E2 C042300D 06092A86 
-  4886F70D 01010505 00038181 00211422 3F5A622F 4D11A7C2 83A04148 4FE22794 
-  A6C3EF25 A31F972A 79FCE143 B35427D2 90596E31 AD6D76C3 3EA38EA5 99ADAF2A 
-  B4C9C6AA 0117A305 52E9CD43 668E0B66 B83D47BD 783D7FA4 8ED4A240 7465905F 
-  B7250775 2FCD1469 D2218150 9501FD4A F61B7DC4 5FECCD02 24B9EFFE 1C946E25 
-  AC267BEA 7334C6E5 0BF01C00 C5
-        quit
 voice-card 0
-!
-!
-!
-!
-!
-!
-!
 !
 vxml logging-tag
 license udi pid CISCO2921/K9 sn FCZ170560FX
@@ -153,40 +90,25 @@ license accept end user agreement
 license boot module c2900 technology-package securityk9
 license boot module c2900 technology-package uck9
 !
-!
 vtp mode transparent
-username cisco privilege 15 secret 5 $1$xyTP$JcqnOB0e/YU5kXn7A7.XD1
-!
 redundancy
-!         
 !
-!
-!
-!
-! 
-!
-!
-!
-!
-!
-!
-!
-!
-!
+! --- INTERFACES ---
 interface Embedded-Service-Engine0/0
  no ip address
  shutdown
 !
 interface GigabitEthernet0/0
  no ip address
- shutdown
  duplex auto
  speed auto
+ shutdown
 !
 interface GigabitEthernet0/1
  no ip address
  duplex auto
  speed auto
+ no shutdown
 !
 interface GigabitEthernet0/1.10
  description IP DHCP VLAN SERVERS
@@ -203,11 +125,11 @@ interface GigabitEthernet0/1.40
 !
 interface GigabitEthernet0/2
  no ip address
- shutdown
  duplex auto
  speed auto
+ shutdown
 !
-!
+! --- ROUTING & SERVICES ---
 ip forward-protocol nd
 !
 ip http server
@@ -217,6 +139,7 @@ ip http secure-server
 ip route 0.0.0.0 0.0.0.0 172.20.7.97
 ip ssh version 2
 !
+! --- ACLs & MANAGEMENT ---
 ip access-list standard ACL-SNMP
  permit 172.20.7.35
  deny   any
@@ -224,25 +147,17 @@ ip access-list standard ACL-SNMP
 logging host 172.20.7.35
 ipv6 ioam timestamp
 !
-!
 snmp-server community cisco RO ACL-SNMP
 !
 control-plane
 !
- !
- !
- !
- !
-!
+! --- VOICE & TELEPHONY ---
 mgcp behavior rsip-range tgcp-only
 mgcp behavior comedia-role none
 mgcp behavior comedia-check-media-src disable
 mgcp behavior comedia-sdp-force disable
 !
 mgcp profile default
-!
-!
-!
 !
 dial-peer voice 1000 voip
  destination-pattern 1...
@@ -252,12 +167,8 @@ dial-peer voice 3000 voip
  destination-pattern 3...
  session target ipv4:10.0.0.10
 !
-!
-!
-!
 gatekeeper
  shutdown
-!
 !
 telephony-service
  max-ephones 10
@@ -269,27 +180,21 @@ telephony-service
  transfer-system full-consult
  create cnf-files version-stamp Jan 01 2002 00:00:00
 !
-!
 ephone-dn  1
  number 2001
 !
-!         
 ephone-dn  2
  number 2002
 !
-!
 ephone  1
  device-security-mode none
-!
-!
 !
 ephone  2
  device-security-mode none
  mac-address 0002.0002.0002
  type 7912
 !
-!
-!
+! --- LINES ---
 line con 0
 line aux 0
 line 2
@@ -305,6 +210,20 @@ line vty 5 15
  login local
  transport input ssh
 !
+! --- GERAR CHAVE RSA (SSH & HTTPS) ---
+crypto key generate rsa general-keys modulus 2048
+!
 scheduler allocate 20000 1000
 !
 end
+conf t
+banner motd %
+######################################################################
+#                                                                    #
+#                        Private Property                            #
+#            Unnauthorized access will not be tolerated              #
+#                        DHCP-SERVER-777                             #
+#                                                                    #
+######################################################################
+%
+write memory

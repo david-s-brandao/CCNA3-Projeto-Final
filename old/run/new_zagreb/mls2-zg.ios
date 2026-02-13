@@ -1,19 +1,15 @@
-Current configuration : 14043 bytes
+enable
+configure terminal
 !
-! Last configuration change at 11:29:18 UTC Wed Feb 11 2026
-!
-version 16.12
 no service pad
 service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
-! Call-home is enabled by Smart-Licensing.
 service call-home
 platform punt-keepalive disable-kernel-core
 platform management port rate-limt-enabled
 !
 hostname MLS2-Zg-777
-!
 !
 vrf definition Mgmt-vrf
  !
@@ -23,118 +19,21 @@ vrf definition Mgmt-vrf
  address-family ipv6
  exit-address-family
 !
-!
 no aaa new-model
-switch 1 provision ws-c3650-24ps
 !
-!
-!
-!
-call-home
- ! If contact email address in call-home is configured as sch-smart-licensing@cisco.com
- ! the email address configured in Cisco Smart License Portal will be used as contact email address to send SCH notifications.
- contact-email-addr sch-smart-licensing@cisco.com
- profile "CiscoTAC-1"
-  active
-  destination transport-method http
-  no destination transport-method email
 ip routing
-!
-!
-!         
-!
 !
 no ip domain lookup
 ip domain name isepacademy.ccna.itn.com
-!
-!
 !
 ip dhcp snooping vlan 10,20,30
 ip arp inspection vlan 10,20,30
 login block-for 300 attempts 3 within 120
 login on-success log
 !
-!
-!
-!
-!
-!
-!
 no device-tracking logging theft
 !
-crypto pki trustpoint SLA-TrustPoint
- enrollment pkcs12
- revocation-check crl
-!
-crypto pki trustpoint TP-self-signed-3596577929
- enrollment selfsigned
- subject-name cn=IOS-Self-Signed-Certificate-3596577929
- revocation-check none
- rsakeypair TP-self-signed-3596577929
-!
-!
-crypto pki certificate chain SLA-TrustPoint
- certificate ca 01
-  30820321 30820209 A0030201 02020101 300D0609 2A864886 F70D0101 0B050030 
-  32310E30 0C060355 040A1305 43697363 6F312030 1E060355 04031317 43697363 
-  6F204C69 63656E73 696E6720 526F6F74 20434130 1E170D31 33303533 30313934 
-  3834375A 170D3338 30353330 31393438 34375A30 32310E30 0C060355 040A1305 
-  43697363 6F312030 1E060355 04031317 43697363 6F204C69 63656E73 696E6720 
-  526F6F74 20434130 82012230 0D06092A 864886F7 0D010101 05000382 010F0030 
-  82010A02 82010100 A6BCBD96 131E05F7 145EA72C 2CD686E6 17222EA1 F1EFF64D 
-  CBB4C798 212AA147 C655D8D7 9471380D 8711441E 1AAF071A 9CAE6388 8A38E520 
-  1C394D78 462EF239 C659F715 B98C0A59 5BBB5CBD 0CFEBEA3 700A8BF7 D8F256EE 
-  4AA4E80D DB6FD1C9 60B1FD18 FFC69C96 6FA68957 A2617DE7 104FDC5F EA2956AC 
-  7390A3EB 2B5436AD C847A2C5 DAB553EB 69A9A535 58E9F3E3 C0BD23CF 58BD7188 
-  68E69491 20F320E7 948E71D7 AE3BCC84 F10684C7 4BC8E00F 539BA42B 42C68BB7 
-  C7479096 B4CB2D62 EA2F505D C7B062A4 6811D95B E8250FC4 5D5D5FB8 8F27D191 
-  C55F0D76 61F9A4CD 3D992327 A8BB03BD 4E6D7069 7CBADF8B DF5F4368 95135E44 
-  DFC7C6CF 04DD7FD1 02030100 01A34230 40300E06 03551D0F 0101FF04 04030201 
-  06300F06 03551D13 0101FF04 05300301 01FF301D 0603551D 0E041604 1449DC85 
-  4B3D31E5 1B3E6A17 606AF333 3D3B4C73 E8300D06 092A8648 86F70D01 010B0500 
-  03820101 00507F24 D3932A66 86025D9F E838AE5C 6D4DF6B0 49631C78 240DA905 
-  604EDCDE FF4FED2B 77FC460E CD636FDB DD44681E 3A5673AB 9093D3B1 6C9E3D8B 
-  D98987BF E40CBD9E 1AECA0C2 2189BB5C 8FA85686 CD98B646 5575B146 8DFC66A8 
-  467A3DF4 4D565700 6ADF0F0D CF835015 3C04FF7C 21E878AC 11BA9CD2 55A9232C 
-  7CA7B7E6 C1AF74F6 152E99B7 B1FCF9BB E973DE7F 5BDDEB86 C71E3B49 1765308B 
-  5FB0DA06 B92AFE7F 494E8A9E 07B85737 F3A58BE1 1A48A229 C37C1E69 39F08678 
-  80DDCD16 D6BACECA EEBC7CF9 8428787B 35202CDC 60E4616A B623CDBD 230E3AFB 
-  418616A9 4093E049 4D10AB75 27E86F73 932E35B5 8862FDAE 0275156F 719BB2F0 
-  D697DF7F 28
-        quit
-crypto pki certificate chain TP-self-signed-3596577929
- certificate self-signed 01
-  30820330 30820218 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
-  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
-  69666963 6174652D 33353936 35373739 3239301E 170D3236 30323131 30393331 
-  31385A17 0D333030 31303130 30303030 305A3031 312F302D 06035504 03132649 
-  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 35393635 
-  37373932 39308201 22300D06 092A8648 86F70D01 01010500 0382010F 00308201 
-  0A028201 0100B220 F27BB57B 915498DE A8A8274B 15768CAC D52FC581 B827A313 
-  BE16CBDC B6B48673 32A0204D 7FC78268 533C2E38 D06A38E2 4ED14D02 1F6BD644 
-  0E513DD2 5EED96B5 87124694 52CCCBF2 679C16C5 C271E951 164C092E 5B2BB988 
-  24DE11F0 A313142F 34B15614 FF1C285B 9FA706C4 4A8889C6 90EEBC13 249D6D45 
-  FEE997A6 429E1E69 E29DE227 3C4BACC1 84C06E35 14633A3F D3B16B47 2CB99BE8 
-  6D39F892 6A5C6265 C7D5334F 945DDCB1 D590E69B C42FAE45 CB2231DC 10C155B3 
-  0FB27922 ED835F3B 0099AD11 7CB01411 0EBA377F F1BB6686 CD086388 CEEE00EB 
-  0E42AD2E 4CE752B6 B303E449 B979E01E 2C55F14B 0BFB899A 0EB079CD 7D757114 
-  47731AE8 56790203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 
-  301F0603 551D2304 18301680 14570167 2687ED18 D5D89AC0 623BBE53 E5E98A68 
-  DB301D06 03551D0E 04160414 57016726 87ED18D5 D89AC062 3BBE53E5 E98A68DB 
-  300D0609 2A864886 F70D0101 05050003 82010100 81A221D9 82611A0E A82BACB4 
-  C302D409 609F9C2D 44553738 C6F141FD A58F0300 01C7EEDC 27366EF9 5033FC09 
-  BBE67386 70325AAF D59C5885 8E339478 C4894440 F00EF118 08FC7870 2F0C84AE 
-  9831A2F5 E41D565C 4A130BFD B523DADB E8AB24E5 8C5D55C4 B839921B BEF8D5D1 
-  85A604F5 053A4008 2D5BC5E3 05FCC95A 2524E51B 79DC5CF6 EB72E050 10EA08ED 
-  3B10BA37 F6431C43 A03AFAC3 0C303CC0 38BE121E 28735B2C 66E93262 80885F7F 
-  6929D0B1 8CC82C99 07AB726D 9ABE3524 4EAB2C9C 683C6833 878229E7 2F74B456 
-  4BE5FDB9 F3642C6E EFBC5C87 DBD24D30 F0CB728A 14C73C49 572045B3 81E41D56 
-  3FCE315D 35307305 0811F161 3BD0A43F BFF94A1D
-        quit
-!
-!
 license boot level ipservicesk9
-!
 !
 diagnostic bootup level minimal
 !
@@ -143,68 +42,14 @@ spanning-tree portfast bpduguard default
 spanning-tree extend system-id
 spanning-tree vlan 5-6,10,20,30 priority 28672
 spanning-tree vlan 40,50,60 priority 24576
-memory free low-watermark processor 79468
 !
-username cisco privilege 15 secret 9 $9$FSqafKBLeRu0aU$7FNhIBOU0qLRX4jkJVrW7zS7VSnA2QROSlOaTiAatEo
+username cisco privilege 15 secret 9 classclass
 !
 redundancy
  mode sso
 !
-!
-!
-!
-!
 transceiver type all
  monitoring
-!
-!
-class-map match-any system-cpp-police-topology-control
-  description Topology control
-class-map match-any system-cpp-police-sw-forward
-  description Sw forwarding, L2 LVX data, LOGGING
-class-map match-any system-cpp-default
-  description EWLC control, EWLC data, Inter FED 
-class-map match-any system-cpp-police-sys-data
-  description Learning cache ovfl, High Rate App, Exception, EGR Exception, NFL SAMPLED DATA, RPF Failed
-class-map match-any system-cpp-police-punt-webauth
-  description Punt Webauth
-class-map match-any system-cpp-police-l2lvx-control
-  description L2 LVX control packets
-class-map match-any system-cpp-police-forus
-  description Forus Address resolution and Forus traffic
-class-map match-any system-cpp-police-multicast-end-station
-  description MCAST END STATION
-class-map match-any system-cpp-police-multicast
-  description Transit Traffic and MCAST Data
-class-map match-any system-cpp-police-l2-control
-  description L2 control
-class-map match-any system-cpp-police-dot1x-auth
-  description DOT1X Auth
-class-map match-any system-cpp-police-data
-  description ICMP redirect, ICMP_GEN and BROADCAST
-class-map match-any system-cpp-police-stackwise-virt-control
-  description Stackwise Virtual
-class-map match-any non-client-nrt-class
-class-map match-any system-cpp-police-routing-control
-  description Routing control and Low Latency
-class-map match-any system-cpp-police-protocol-snooping
-  description Protocol snooping
-class-map match-any system-cpp-police-dhcp-snooping
-  description DHCP snooping
-class-map match-any system-cpp-police-system-critical
-  description System Critical and Gold Pkt
-!
-policy-map system-cpp-policy
-!
-! 
-!
-!
-!
-!         
-!
-!
-!
-!
 !
 interface Port-channel1
  description ETHERCHANNEL BETWEEN MLSs
@@ -213,6 +58,7 @@ interface Port-channel1
  switchport mode trunk
  switchport nonegotiate
  ip arp inspection trust
+ no shutdown
 !
 interface GigabitEthernet0/0
  vrf forwarding Mgmt-vrf
@@ -224,6 +70,7 @@ interface GigabitEthernet1/0/1
  no switchport
  ip arp inspection trust
  ip address 172.20.7.102 255.255.255.252
+ no shutdown
 !
 interface GigabitEthernet1/0/2
  description ETHERCHANNEL PORTs
@@ -233,6 +80,7 @@ interface GigabitEthernet1/0/2
  switchport nonegotiate
  ip arp inspection trust
  channel-group 1 mode on
+ no shutdown
 !
 interface GigabitEthernet1/0/3
  description ETHERCHANNEL PORTs
@@ -242,6 +90,7 @@ interface GigabitEthernet1/0/3
  switchport nonegotiate
  ip arp inspection trust
  channel-group 1 mode on
+ no shutdown
 !
 interface GigabitEthernet1/0/4
  description CONNECTION TO SW2-ZG
@@ -251,6 +100,7 @@ interface GigabitEthernet1/0/4
  switchport nonegotiate
  ip arp inspection trust
  ip dhcp snooping trust
+ no shutdown
 !
 interface GigabitEthernet1/0/5
  description CONNECTION TO SW1-ZG
@@ -260,6 +110,7 @@ interface GigabitEthernet1/0/5
  switchport nonegotiate
  ip arp inspection trust
  ip dhcp snooping trust
+ no shutdown
 !
 interface GigabitEthernet1/0/6
  description PORTs OFF
@@ -410,6 +261,7 @@ interface Vlan5
  standby 5 ip 172.20.7.65
  standby 5 timers 1 3
  standby 5 preempt
+ no shutdown
 !
 interface Vlan6
  description VLAN MANAGEMENT
@@ -417,6 +269,7 @@ interface Vlan6
  standby 6 ip 172.20.7.1
  standby 6 timers 1 3
  standby 6 preempt
+ no shutdown
 !
 interface Vlan10
  description VLAN SERVERS
@@ -424,6 +277,7 @@ interface Vlan10
  standby 10 ip 172.20.7.33
  standby 10 timers 1 3
  standby 10 preempt
+ no shutdown
 !
 interface Vlan20
  description VLAN ADM
@@ -432,6 +286,7 @@ interface Vlan20
  standby 20 ip 172.20.4.1
  standby 20 timers 1 3
  standby 20 preempt
+ no shutdown
 !
 interface Vlan30
  description VLAN STAFF
@@ -440,6 +295,7 @@ interface Vlan30
  standby 30 ip 172.20.5.1
  standby 30 timers 1 3
  standby 30 preempt
+ no shutdown
 !
 interface Vlan40
  description VLAN VOIP
@@ -449,6 +305,7 @@ interface Vlan40
  standby 40 timers 1 3
  standby 40 priority 110
  standby 40 preempt
+ no shutdown
 !
 interface Vlan50
  description VLAN WIRELESS
@@ -458,6 +315,7 @@ interface Vlan50
  standby 50 timers 1 3
  standby 50 priority 110
  standby 50 preempt
+ no shutdown
 !
 interface Vlan60
  description VLAN GUESTS
@@ -467,6 +325,7 @@ interface Vlan60
  standby 60 timers 1 3
  standby 60 priority 110
  standby 60 preempt
+ no shutdown
 !
 router ospf 100
  router-id 3.3.3.3
@@ -482,16 +341,9 @@ ip http secure-server
 ip http client source-interface Vlan1
 ip ssh version 2
 !
-!
-!
 logging host 172.20.7.35
 !
-!
 snmp-server community cisco RO
-!
-control-plane
- service-policy input system-cpp-policy
-!
 !
 line con 0
  exec-timeout 0 0
@@ -515,9 +367,18 @@ line vty 5 15
 !
 ntp server 172.20.7.97
 !
-!
-!
-!
-!
+! --- GERAR CHAVE RSA (SSH & HTTPS) ---
+crypto key generate rsa modulus 2048
 !
 end
+conf t
+banner motd %
+######################################################################
+#                                                                    #
+#                        Private Property                            #
+#            Unnauthorized access will not be tolerated              #
+#                          MLS2-ZG-777                               #
+#                                                                    #
+######################################################################
+%
+write memory

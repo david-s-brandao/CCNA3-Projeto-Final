@@ -1,9 +1,6 @@
-SW1-St-777#sh run
-Building configuration...
-
-Current configuration : 10017 bytes
+Current configuration : 11076 bytes
 !
-! Last configuration change at 05:35:20 WET Mon Mar 1 1993 by cisco
+! Last configuration change at 03:08:03 UTC Mon Mar 1 1993 by cisco
 !
 version 15.0
 no service pad
@@ -11,20 +8,19 @@ service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
 !
-hostname SW1-St-777
+hostname SW2-Zg-777
 !
 boot-start-marker
 boot-end-marker
 !
 !
-username cisco privilege 15 secret 5 $1$B7Q8$ynHBUWcn/T1PHB0b5/IHR0
+username cisco privilege 15 secret 5 classclass
 no aaa new-model
-clock timezone WET 0 0
 system mtu routing 1500
-ip arp inspection vlan 30,50,60
+ip arp inspection vlan 10,20,30
 !
 !
-ip dhcp snooping vlan 30,40,50,60
+ip dhcp snooping vlan 10,20,30
 no ip domain-lookup
 ip domain-name isepacademy.ccna.itn.com
 ip host split-pula 10.0.0.10
@@ -43,11 +39,13 @@ ip host sw1-zg 172.20.7.2
 ip host mls2-zg 172.20.7.5
 ip host mls1-zg 172.20.7.4
 ip host rt1-zg 172.20.7.97
-ip host pc-d 172.20.12.2
-ip host ap 172.20.14.34
-ip host Lo2 172.20.13.1
-ip host Lo1 172.20.13.193
-ip host Lo0 172.20.13.129
+ip host pc-b 172.20.5.4
+ip host pc-a 172.20.4.4
+ip host pc-wlc 172.20.7.8
+ip host ap 172.20.7.7
+ip host wlc 172.20.7.6
+ip host mls2 172.20.7.5
+ip host mls1 172.20.7.4
 !
 !
 !
@@ -68,9 +66,10 @@ ip ssh version 2
 !
 !
 !
-!
+!         
 interface FastEthernet0/1
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -81,23 +80,20 @@ interface FastEthernet0/1
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/2
- description CONNECTION TO RT1-St
- switchport access vlan 30
- switchport trunk native vlan 7
- switchport trunk allowed vlan 5,6,30,40,50,60
- switchport mode trunk
- switchport nonegotiate
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
+ switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
  switchport port-security
- ip arp inspection trust
+ shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
- ip dhcp snooping trust
 !
 interface FastEthernet0/3
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -108,7 +104,8 @@ interface FastEthernet0/3
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/4
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -119,7 +116,8 @@ interface FastEthernet0/4
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/5
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -130,18 +128,20 @@ interface FastEthernet0/5
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/6
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
  switchport port-security
- shutdown
+ shutdown 
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/7
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -152,7 +152,8 @@ interface FastEthernet0/7
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/8
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -163,7 +164,8 @@ interface FastEthernet0/8
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/9
- switchport access vlan 30
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
@@ -174,9 +176,10 @@ interface FastEthernet0/9
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/10
- description UNUSED PORT
- switchport access vlan 99
+ description ACCESS TO ADM and VOIP
+ switchport access vlan 20
  switchport mode access
+ switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
  switchport port-security
@@ -185,120 +188,137 @@ interface FastEthernet0/10
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/11
+ description ACCESS TO STAFF and VOIP
  switchport access vlan 30
  switchport mode access
  switchport voice vlan 40
- switchport port-security maximum 5
- switchport port-security aging time 5
- switchport port-security
  shutdown
  spanning-tree portfast
- ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/12
+ description ACCESS TO STAFF and VOIP
  switchport access vlan 30
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
- switchport port-security
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/13
+ description ACCESS TO STAFF and VOIP
  switchport access vlan 30
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
- switchport port-security
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/14
+ description ACCESS TO STAFF and VOIP
  switchport access vlan 30
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
- switchport port-security
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
-!
+!         
 interface FastEthernet0/15
+ description ACCESS TO STAFF and VOIP
  switchport access vlan 30
  switchport mode access
  switchport voice vlan 40
  switchport port-security maximum 5
  switchport port-security aging time 5
- switchport port-security
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/16
- description CONNECTION TO IP-PHONE-SPLIT
+ description ACCESS TO STAFF and VOIP
  switchport access vlan 30
  switchport mode access
  switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
+ shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/17
- switchport access vlan 99
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
  switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/18
- switchport access vlan 99
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
  switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/19
- switchport access vlan 99
+ description ACCESS TO STAFF and VOIP
+ switchport access vlan 30
  switchport mode access
+ switchport voice vlan 40
+ switchport port-security maximum 5
+ switchport port-security aging time 5
  shutdown
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/20
- switchport access vlan 99
- switchport mode access
- shutdown
+ description CONNECTION TO PC-B
+ switchport access vlan 30
+ switchport voice vlan 40
  spanning-tree portfast
  ip dhcp snooping limit rate 5
 !
 interface FastEthernet0/21
  description CONNECTION TO AP
  switchport trunk native vlan 5
- switchport trunk allowed vlan 5,50,60
+ switchport trunk allowed vlan 5,6,50,60
  switchport mode trunk
  switchport nonegotiate
- ip dhcp snooping limit rate 5
+ spanning-tree portfast trunk
 !
 interface FastEthernet0/22
+ description CONNECTION TO AP
  switchport trunk native vlan 5
- switchport trunk allowed vlan 5,50,60
+ switchport trunk allowed vlan 5,6,50,60
  switchport mode trunk
  switchport nonegotiate
  shutdown
- ip dhcp snooping limit rate 5
+ spanning-tree portfast trunk
 !
 interface FastEthernet0/23
- switchport access vlan 99
- switchport mode access
- shutdown
- spanning-tree portfast
- ip dhcp snooping limit rate 5
+ description CONNECTION TO WLC
+ switchport trunk native vlan 6
+ switchport trunk allowed vlan 5,6,50,60
+ switchport mode trunk
+ switchport nonegotiate
+ ip arp inspection trust
+ spanning-tree portfast trunk
+ ip dhcp snooping trust
 !
 interface FastEthernet0/24
+ description PORT OFF
  switchport access vlan 99
  switchport mode access
  shutdown
@@ -306,37 +326,44 @@ interface FastEthernet0/24
  ip dhcp snooping limit rate 5
 !
 interface GigabitEthernet0/1
- description CONNECTION TO RT1-St
+ description CONNECTION TO MLS1
  switchport trunk native vlan 7
- switchport trunk allowed vlan 5,6,30,40,50,60
+ switchport trunk allowed vlan 1-98,100-4094
  switchport mode trunk
  switchport nonegotiate
  ip arp inspection trust
- spanning-tree portfast trunk
  ip dhcp snooping trust
 !
 interface GigabitEthernet0/2
- switchport access vlan 99
- switchport mode access
- shutdown
- spanning-tree portfast
- ip dhcp snooping limit rate 5
-!
+ description CONNECTION TO MLS2
+ switchport trunk native vlan 7
+ switchport trunk allowed vlan 1-98,100-4094
+ switchport mode trunk
+ switchport nonegotiate
+ ip arp inspection trust
+ ip dhcp snooping trust
+!         
 interface Vlan1
  no ip address
+ shutdown
 !
 interface Vlan6
- description VLAN 6 SW1 IP
- ip address 172.20.14.42 255.255.255.224
+ description VLAN 6 SW2 IP  
+ ip address 172.20.7.3 255.255.255.224
 !
+ip default-gateway 172.20.7.1
 ip http server
 ip http secure-server
 !
 ip access-list standard ACL-SNMP
  permit 172.20.7.35
  deny   any
-ip access-list standard ACL-SSH-RESTRICT
- permit 172.20.12.0 0.0.0.127
+ip access-list standard SSH-ACCESS
+ permit 172.20.4.0 0.0.0.255
+ permit 172.20.5.0 0.0.0.255
+ deny   any
+ permit 172.20.7.0 0.0.0.255
+ip source binding 0897.986A.FF7D vlan 30 172.20.5.4 interface Fa0/20
 logging host 172.20.7.35
 snmp-server community cisco RO ACL-SNMP
 snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
@@ -368,7 +395,7 @@ snmp-server enable traps syslog
 snmp-server enable traps mac-notification change move threshold
 snmp-server enable traps vlan-membership
 snmp-server enable traps errdisable
-snmp-server host 172.20.7.35 version 2c cisco
+snmp-server host 172.20.7.35 version 2c cisco 
 !
 vstack
 banner motd ^C
@@ -376,26 +403,37 @@ banner motd ^C
 #                                                                    #
 #                       Private Property                             #
 #           Unnauthorized access will not be tolerated               #
-#                          SW1-St-777                                #
+#                          SW2-Zg-777                                #
 #                                                                    #
 ######################################################################
 ^C
 !
 line con 0
- password 7 14141E0A1F172927253B20
+ password 7 1511070D17392828292026
  login local
 line vty 0 4
- access-class ACL-SSH-RESTRICT in
+ access-class SSH-ACCESS in
  exec-timeout 0 30
  privilege level 15
  login local
  transport input ssh
 line vty 5 15
- access-class ACL-SSH-RESTRICT in
+ access-class SSH-ACCESS in
  exec-timeout 0 30
  privilege level 15
  login local
  transport input ssh
 !
 ntp server 172.20.7.97
+
+conf t
+banner motd %
+######################################################################
+#                                                                    #
+#                        Private Property                            #
+#            Unnauthorized access will not be tolerated              #
+#                          SW1-ZG-777                               #
+#                                                                    #
+######################################################################
+%
 end

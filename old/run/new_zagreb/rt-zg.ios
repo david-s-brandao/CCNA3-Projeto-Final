@@ -1,35 +1,17 @@
-Current configuration : 12630 bytes
+enable
+configure terminal
 !
-! Last configuration change at 17:56:25 UTC Wed Feb 11 2026 by cisco
-! NVRAM config last updated at 14:44:04 UTC Wed Feb 11 2026 by cisco
-!
-version 15.7
 service timestamps debug datetime msec
 service timestamps log datetime msec
 service password-encryption
 !
 hostname RT1-Zg-777
 !
-boot-start-marker
-boot-end-marker
-!
-!
 security passwords min-length 10
-enable secret 5 $1$mERr$UIEd/gKB8Xu9v11aSkZ1n0
+enable secret 5 classclass
 !
 no aaa new-model
 memory-size iomem 5
-!
-!         
-!
-!
-!
-!
-!
-!
-!
-!
-!
 !
 no ip domain lookup
 ip domain name isepacademy.ccna.itn.com
@@ -43,60 +25,39 @@ ip host SW2-Zg 172.20.7.4
 ip cef
 login block-for 300 attempts 3 within 120
 no ipv6 cef
-!         
+!
 multilink bundle-name authenticated
 !
-!
-!
-!
-!
-!
-!
 voice-card 0
-!
-!
-!
-!
-!
-!
-!
 !
 vxml logging-tag
 license udi pid CISCO2911/K9 sn FCZ160220UC
 license accept end user agreement
 license boot module c2900 technology-package securityk9
 license boot module c2900 technology-package uck9
-!         
 !
 vtp mode transparent
-username cisco privilege 15 secret 5 $1$g6qT$2mOK/GtFudaQGvqg2LiCs.
-username admin privilege 15 secret 5 $1$1P83$Z2rlJk9X1Fo.3nqojF2dt0
+username cisco privilege 15 secret 5 classclass
+username admin privilege 15 secret 5 classclass
 !
 redundancy
 !
-!
-!
-!
-!
-! 
-!
+! --- VPN / IPSEC CONFIGS ---
 crypto isakmp policy 100
  encr aes
  authentication pre-share
  group 5
+!
 crypto isakmp key z4gr3b$pl1t address 172.16.201.41  
 crypto isakmp key z4gr3bPvl4 address 172.16.201.43  
 crypto isakmp key z4gr3bPvl4 address 172.16.201.65  
 crypto isakmp key z4gr3b$pl1t address 172.16.201.57  
 crypto isakmp key z4gr3b$pl1t address 172.16.201.67  
-!         
 !
 crypto ipsec transform-set TSET-NEW esp-aes esp-sha-hmac 
  mode tunnel
 crypto ipsec transform-set TSET esp-aes esp-sha-hmac 
  mode tunnel
-!
-!
 !
 crypto map CROATIA 10 ipsec-isakmp 
  set peer 172.16.201.65
@@ -115,10 +76,7 @@ crypto map CROATIA 40 ipsec-isakmp
  set transform-set TSET 
  match address 104
 !
-!
-!
-!
-!
+! --- INTERFACES ---
 interface Tunnel0
  description TUNNEL-ZAGREB-PULA
  ip address 10.0.0.1 255.255.255.252
@@ -127,6 +85,7 @@ interface Tunnel0
  ip ospf 100 area 0
  tunnel source GigabitEthernet0/2
  tunnel destination 172.16.201.65
+ no shutdown
 !
 interface Tunnel1
  description TUNNEL-ZAGREB-SPLIT
@@ -138,6 +97,7 @@ interface Tunnel1
  ip ospf 100 area 0
  tunnel source GigabitEthernet0/2
  tunnel destination 172.16.201.67
+ no shutdown
 !
 interface Embedded-Service-Engine0/0
  no ip address
@@ -151,6 +111,7 @@ interface GigabitEthernet0/0
  ip ospf 100 area 0
  duplex auto
  speed auto
+ no shutdown
 !
 interface GigabitEthernet0/1
  description CONNECTION TO MLS2-ZG  
@@ -160,6 +121,7 @@ interface GigabitEthernet0/1
  ip ospf 100 area 0
  duplex auto
  speed auto
+ no shutdown
 !
 interface GigabitEthernet0/1.20
  ip helper-address 172.20.7.36
@@ -180,6 +142,7 @@ interface GigabitEthernet0/2
  duplex auto
  speed auto
  crypto map CROATIA
+ no shutdown
 !
 interface Serial0/0/0
  no ip address
@@ -191,6 +154,7 @@ interface Serial0/0/1
  shutdown
  clock rate 2000000
 !
+! --- ROUTING & NAT ---
 router ospf 100
  router-id 4.4.4.4
  passive-interface default
@@ -204,7 +168,7 @@ router ospf 100
  network 172.20.7.0 0.0.0.255 area 0
 !
 ip forward-protocol nd
-!         
+!
 no ip http server
 no ip http secure-server
 ip flow-export version 9
@@ -220,6 +184,13 @@ ip route 172.20.7.0 255.255.255.0 172.20.7.102 120
 ip route 0.0.0.0 0.0.0.0 dhcp
 ip ssh version 2
 !
+! --- ACLs ---
+access-list 1 permit 172.20.0.0 0.0.255.255
+access-list 101 permit gre host 172.16.201.54 host 172.16.201.65
+access-list 102 permit gre host 172.16.201.54 host 172.16.201.57
+access-list 103 permit gre host 172.16.201.54 host 172.16.201.64
+access-list 104 permit gre host 172.16.201.54 host 172.16.201.67
+!
 ip access-list standard NAT-NETWORKS
  permit 10.0.0.0 0.0.0.255
  permit 172.20.0.0 0.0.255.255
@@ -228,13 +199,14 @@ ip access-list extended ACL-ZG-PULA
  permit gre host 172.16.201.45 host 172.16.201.43
  permit gre host 172.16.201.43 host 172.16.201.45
  deny   ip any any
+!
 ip access-list extended ACL-ZG-SPLIT
  permit gre host 172.16.201.45 host 172.16.201.41
  permit gre host 172.16.201.41 host 172.16.201.45
  deny   ip any any
 !
+! --- LOGGING & SNMP ---
 logging host 172.20.7.35
-!
 !
 snmp-server community cisco RO ACL-SNMP
 snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
@@ -361,28 +333,16 @@ snmp-server enable traps srst
 snmp-server enable traps voice
 snmp-server enable traps dnis
 snmp-server host 172.20.7.35 version 2c cisco 
-access-list 1 permit 172.20.0.0 0.0.255.255
-access-list 101 permit gre host 172.16.201.54 host 172.16.201.65
-access-list 102 permit gre host 172.16.201.54 host 172.16.201.57
-access-list 103 permit gre host 172.16.201.54 host 172.16.201.64
-access-list 104 permit gre host 172.16.201.54 host 172.16.201.67
 !
 control-plane
 !
- !
- !
- !
- !
-!
+! --- VOICE & TELEPHONY ---
 mgcp behavior rsip-range tgcp-only
 mgcp behavior comedia-role none
 mgcp behavior comedia-check-media-src disable
 mgcp behavior comedia-sdp-force disable
 !
 mgcp profile default
-!
-!
-!         
 !
 dial-peer voice 4000 voip
  destination-pattern 4...
@@ -392,12 +352,8 @@ dial-peer voice 5000 voip
  destination-pattern 5...
  session target ipv4:10.0.0.6
 !
-!
-!
-!
 gatekeeper
  shutdown
-!
 !
 telephony-service
  max-ephones 10
@@ -408,14 +364,13 @@ telephony-service
  transfer-system full-consult
  create cnf-files version-stamp Jan 01 2002 00:00:00
 !
-!
 ephone-dn  1
  number 2001
-!
 !
 ephone-dn  2
  number 2002
 !
+! --- LINES & BANNERS ---
 banner motd ^C
 ######################################################################
 #                                                                    #
@@ -451,10 +406,14 @@ line vty 5 15
  login local
  transport input ssh
 !
+! --- NTP & GERAR CHAVE RSA (SSH) ---
 scheduler allocate 20000 1000
 ntp source GigabitEthernet0/0
 ntp master 3
 ntp server pool.ntp.org
 ntp server time.google.com
 !
+crypto key generate rsa general-keys modulus 2048
+!
 end
+write memory
