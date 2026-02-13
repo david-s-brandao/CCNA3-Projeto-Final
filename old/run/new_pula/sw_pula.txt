@@ -8,7 +8,7 @@ service password-encryption
 !
 hostname SW1-Pl-777
 !
-username cisco privilege 15 secret 5 $1$mJwB$lD0ahBTXvKd7vGgpSuDCG1
+username cisco privilege 15 secret 5 classclass
 no aaa new-model
 system mtu routing 1500
 ip arp inspection vlan 30
@@ -199,8 +199,9 @@ interface FastEthernet0/15
 !
 interface FastEthernet0/16
  description CONNECTION TO IP-PHONE
+ switchport mode trunk
+ switchport access vlan30
  switchport access vlan 40
- switchport trunk allowed vlan 40
  switchport mode access
  ip arp inspection trust
  spanning-tree portfast
@@ -301,9 +302,11 @@ ip access-list standard ACL-SNMP
  permit 172.20.7.35
  deny   any
 ip access-list standard SSH-ACCESS
- permit 172.20.4.0 0.0.0.255
- permit 172.20.5.0 0.0.0.255
- deny   any
+! Staff de Pula
+ permit 172.20.10.128 0.0.0.127
+! Staff de Split
+ permit 172.20.12.0 0.0.0.127
+ exit
 logging host 172.20.7.35
 snmp-server community cisco RO ACL-SNMP
 snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
@@ -365,5 +368,8 @@ line vty 5 15
  transport input ssh
 !
 ntp server 172.20.7.97
+
+conf t
+logging trap informational
 end
 write memory

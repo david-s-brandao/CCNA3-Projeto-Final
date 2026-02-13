@@ -156,7 +156,7 @@ interface Serial0/0/1
 !
 ! --- ROUTING & NAT ---
 router ospf 100
- router-id 4.4.4.4
+ router-id 5.5.5.5
  passive-interface default
  no passive-interface Tunnel0
  no passive-interface Tunnel1
@@ -166,6 +166,7 @@ router ospf 100
  network 172.20.7.96 0.0.0.3 area 0
  network 172.20.7.100 0.0.0.3 area 0
  network 172.20.7.0 0.0.0.255 area 0
+ default-information originate always
 !
 ip forward-protocol nd
 !
@@ -173,11 +174,9 @@ no ip http server
 no ip http secure-server
 ip flow-export version 9
 !
-ip nat source static tcp 172.20.7.35 22 interface GigabitEthernet0/2 22
 ip nat inside source list NAT-NETWORKS interface GigabitEthernet0/2 overload
 ip nat inside source static tcp 172.20.7.36 80 interface GigabitEthernet0/2 80
 ip nat inside source static tcp 172.20.7.36 443 interface GigabitEthernet0/2 443
-ip nat inside source static tcp 172.20.7.36 22 interface GigabitEthernet0/2 22
 ip route 0.0.0.0 0.0.0.0 172.16.201.254
 ip route 172.20.7.0 255.255.255.0 172.20.7.98
 ip route 172.20.7.0 255.255.255.0 172.20.7.102 120
@@ -205,9 +204,22 @@ ip access-list extended ACL-ZG-SPLIT
  permit gre host 172.16.201.41 host 172.16.201.45
  deny   ip any any
 !
-! --- LOGGING & SNMP ---
-logging host 172.20.7.35
-!
+ip access-list standard ACL-SNMP
+ permit 172.20.7.35
+ deny any
+ exit
+
+ip access-list standard SSH-ACCESS
+ permit 172.20.4.0 0.0.0.255
+ permit 172.20.5.0 0.0.0.255
+ permit 172.20.7.0 0.0.0.255
+ deny any
+exit
+line vty 0 15
+ access-class SSH-ACCESS in
+exit
+
+
 snmp-server community cisco RO ACL-SNMP
 snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
 snmp-server enable traps vrrp
@@ -415,5 +427,8 @@ ntp server time.google.com
 !
 crypto key generate rsa general-keys modulus 2048
 !
+
+conf t 
+logging trap informational
 end
 write memory

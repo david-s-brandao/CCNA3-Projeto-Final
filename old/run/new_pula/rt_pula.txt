@@ -68,7 +68,7 @@ license udi pid CISCO2851 sn FCZ122872KF
 license accept end user agreement
 !
 vtp mode transparent
-username cisco privilege 15 secret 5 $1$8oue$M59MnbJ8MJgaOF0CBQbch.
+username cisco privilege 15 secret 5 classclass
 !
 redundancy
 !
@@ -216,14 +216,19 @@ interface Serial0/0/1
 !
 ! --- ROUTING & NAT ---
 router ospf 100
- router-id 5.5.5.5
+ router-id 4.4.4.4
  passive-interface default
  no passive-interface GigabitEthernet0/1
  no passive-interface Tunnel0
  no passive-interface Tunnel1
  network 10.0.0.0 0.0.0.3 area 0
+ network 10.0.0.8 0.0.0.3 area 0
  network 172.20.8.0 0.0.0.255 area 0
  network 172.20.10.0 0.0.0.127 area 0
+ network 172.20.10.0 0.0.0.127 area 0
+ network 172.20.10.128 0.0.0.127 area 0
+ network 172.20.9.0 0.0.0.255 area 0
+ network 172.20.11.0 0.0.0.63 area 0
  network 172.20.11.64 0.0.0.31 area 0
  network 172.20.11.104 0.0.0.3 area 0
 !
@@ -248,11 +253,9 @@ ip access-list standard NAT-PERMIT
  permit 172.20.10.0 0.0.1.255
 !
 ip access-list standard SSH-ACCESS
- permit 172.20.4.0 0.0.0.255
- permit 172.20.5.0 0.0.0.255
- permit 172.20.10.128 0.0.0.127
- permit 172.20.14.0 0.0.0.63
- deny   any
+ no permit 172.20.14.0 0.0.0.63
+ permit 172.20.12.0 0.0.0.127
+ exit
 !
 ! --- ACLs EXTENDIDAS ---
 ip access-list extended GUEST-ONLY-INTERNET
@@ -285,7 +288,7 @@ ip access-list extended VOIP-NO-INTERNET
 logging host 172.20.7.35
 !
 snmp-server community cisco RO ACL-SNMP
-snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
+snmp-server traps snmp authentication linkdown linkup coldstart warmstart
 snmp-server enable traps vrrp
 snmp-server enable traps flowmon
 snmp-server enable traps ds1
@@ -459,6 +462,9 @@ ntp server 172.20.7.97
 ip ssh version 2
 crypto key generate rsa modulus 2048
 !
-end
 
+conf t 
+logging trap informational
+
+end
 write memory

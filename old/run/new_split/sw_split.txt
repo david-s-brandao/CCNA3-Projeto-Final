@@ -8,7 +8,7 @@ service password-encryption
 !
 hostname SW1-St-777
 !
-username cisco privilege 15 secret 5 $1$B7Q8$ynHBUWcn/T1PHB0b5/IHR0
+username cisco privilege 15 secret 5 classclass
 no aaa new-model
 clock timezone WET 0 0
 system mtu routing 1500
@@ -320,8 +320,9 @@ ip access-list standard ACL-SNMP
  permit 172.20.7.35
  deny   any
 ip access-list standard ACL-SSH-RESTRICT
- permit 172.20.12.0 0.0.0.127
-logging host 172.20.7.35
+ permit 172.20.4.0 0.0.0.255
+ permit 172.20.14.40 0.0.0.7
+ exit
 snmp-server community cisco RO ACL-SNMP
 snmp-server enable traps snmp authentication linkdown linkup coldstart warmstart
 snmp-server enable traps transceiver all
@@ -382,5 +383,9 @@ line vty 5 15
  transport input ssh
 !
 ntp server 172.20.7.97
+
+conf t
+logging trap informational
 end
+
 write memory

@@ -98,8 +98,8 @@ interface Loopback0
 !  
 interface Loopback1  
  description CONNECTION TO DESIGN
- ip address 172.20.13.193 255.255.255.192  
- ip nat inside
+ no ip address
+ shut
 !  
 interface Loopback2  
  description CONNECTION TO COMMUNICATION  
@@ -186,7 +186,7 @@ interface GigabitEthernet0/2
 ip route 0.0.0.0 0.0.0.0 dhcp
 !
 router ospf 100
- router-id 5.5.5.5
+ router-id 3.3.3.3
  passive-interface default
  no passive-interface GigabitEthernet0/1
  no passive-interface Tunnel0
@@ -195,8 +195,17 @@ router ospf 100
  network 172.20.13.0 0.0.0.127 area 0
  network 172.20.14.40 0.0.0.3 area 0
  network 10.0.0.4 0.0.0.3 area 0
+ network 10.0.0.8 0.0.0.3 area 0
+ network 172.20.12.0 0.0.0.255 area 0
+ network 172.20.14.0 0.0.0.255 area 0
 !
-ip nat inside source list 1 interface GigabitEthernet0/0 overload
+ip access-list extended NAT-ACL
+ deny ip 172.20.0.0 0.0.255.255 172.16.201.0 0.0.0.255
+ permit ip 172.20.0.0 0.0.255.255 any
+ exit
+! Aplicar a nova ACL no NAT
+no ip nat inside source list 1 interface GigabitEthernet0/0 overload
+ip nat inside source list NAT-ACL interface GigabitEthernet0/0 overload
 !
 ! --- ACLs ---
 access-list 1 permit 172.20.0.0 0.0.255.255
@@ -208,6 +217,8 @@ ip access-list extended 102
  permit gre host 172.16.201.57 host 172.16.201.65
 !
 ip access-list extended VOIP-NO-INTERNET
+ permit ip 172.20.13.192 0.0.0.63 172.20.0.0 0.0.255.255
+ permit ip 172.20.13.192 0.0.0.63 10.0.0.0 0.255.255.255
  deny ip any any
 !
 ip access-list extended GUEST-ONLY-INTERNET
@@ -218,6 +229,18 @@ ip access-list standard ACL-SNMP
  permit host 172.20.7.35
  deny any
 !
+
+ip access-list standard SSH-ACCESS
+ permit 172.20.12.0 0.0.0.127
+ permit 172.20.4.0 0.0.0.255
+ permit 172.20.14.40 0.0.0.7
+ deny any
+ exit
+line vty 0 15
+ access-class SSH-ACCESS in
+ exit
+ 
+
 ! --- TELEPHONY ---
 dial-peer voice 2000 voip
  destination-pattern 2...
