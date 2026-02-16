@@ -1,0 +1,36 @@
+---
+- name: Configurar ACL de Gestão e Segurança VTY
+  hosts: cisco_network
+  gather_facts: no
+
+  tasks:
+    - name: Criar ou Atualizar a ACL Standard ACL_SSH
+      cisco.ios.ios_config:
+        lines:
+          - remark --- Permitir VLAN 6 (Management) ---
+          - permit 172.20.7.0 0.0.0.63
+          - remark --- Permitir ZAGREB Admin (Vlan 20) ---
+          - permit 172.20.5.0 0.0.0.255
+          - remark --- Permitir ZAGREB Staff (Vlan 30) ---
+          - permit 172.20.4.0 0.0.0.255
+          - remark --- Permitir SPLIT Staff (Vlan 30) ---
+          - permit 172.20.12.0 0.0.0.127
+          - remark --- Permitir PULA Staff (Vlan 30) ---
+          - permit 172.20.10.128 0.0.0.127
+          - remark --- Bloquear tudo o resto ---
+          - deny any
+        parents: ip access-list standard ACL_SSH
+        before: no ip access-list standard ACL_SSH
+        match: exact
+
+    - name: Aplicar ACL nas linhas VTY e configurar acesso
+      cisco.ios.ios_config:
+        lines:
+          - access-class ACL_SSH in
+          - transport input ssh
+          - login local
+        parents: line vty 0 15
+
+    - name: Guardar a configuração (wr)
+      cisco.ios.ios_command:
+        commands: write memory

@@ -175,26 +175,26 @@ authentication pre-share
 group 5
 exit
 - ver ips para os tuneis
-crypto isakmp key z4gr3b$pl1t address <IP_DHCP_ZAGREB>
-crypto isakmp key Pvl4$pl1t address <IP_DHCP_PULA>
+crypto isakmp key z4gr3b$pl1t address 172.16.201.86
+crypto isakmp key Pvl4$pl1t address 172.16.201.87
 crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac
 mode tunnel
 exit
 p access-list extended GRE_TO_ZAGREB
-permit gre host <IP_DHCP_SPLIT> host <IP_DHCP_ZAGREB>
+permit gre host 172.16.201.89 host 172.16.201.86
 deny ip any any
 exit
 ip access-list extended GRE_TO_PULA
-permit gre host <IP_DHCP_SPLIT> host <IP_DHCP_PULA>
+permit gre host 172.16.201.89 host 172.16.201.87
 deny ip any any
 exit
 crypto map CROATIA 10 ipsec-isakmp
-set peer <IP_DHCP_ZAGREB>
+set peer 172.16.201.86
 set transform-set TSET
 match address GRE_TO_ZAGREB
 exit
 crypto map CROATIA 20 ipsec-isakmp
-set peer <IP_DHCP_PULA>
+set peer 172.16.201.87
 set transform-set TSET
 match address GRE_TO_PULA
 exit
@@ -205,14 +205,14 @@ interface Tunnel0
 description GRE Tunnel to Zagreb
 ip address 10.0.0.6 255.255.255.252
 tunnel source g0/0
-tunnel destination <IP_DHCP_ZAGREB>
+tunnel destination 172.16.201.86
 tunnel mode gre ip
 exit
 interface Tunnel1
 description GRE Tunnel to Pula
 ip address 10.0.0.10 255.255.255.252
 tunnel source g0/0
-tunnel destination <IP_DHCP_PULA>
+tunnel destination 172.16.201.87
 tunnel mode gre ip
 exit
  
@@ -238,7 +238,7 @@ interface Gig0/0
 ip nat outside
 exit
 
-p route 0.0.0.0 0.0.0.0 dhcp
+ip route 0.0.0.0 0.0.0.0 dhcp
 router ospf 100
 router-id 3.3.3.3
 network 10.0.0.6 0.0.0.0 area 0

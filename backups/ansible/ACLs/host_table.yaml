@@ -1,0 +1,40 @@
+---
+- name: Configurar Tabela de Hosts Estática (IP Host)
+  hosts: devices
+  gather_facts: no
+
+  vars:
+    # A lista exata solicitada na tua mensagem
+    host_table_entries:
+      - name: RT1-ZG
+        ip: 172.20.7.193
+      - name: MLS1-ZG
+        ip: 172.20.7.194
+      - name: MLS2-ZG
+        ip: 172.20.7.198
+      - name: SW1-ZG
+        ip: 172.20.7.8
+      - name: SW2-ZG
+        ip: 172.20.7.9
+      - name: DHCP-SRV
+        ip: 172.20.7.67
+      - name: RT1-PL
+        ip: 172.20.11.113
+      - name: SW1-PL
+        ip: 172.20.11.114
+      - name: RT1-ST
+        ip: 172.20.13.241
+      - name: SW1-ST
+        ip: 172.20.13.242
+
+  tasks:
+    - name: Aplicar comandos 'ip host'
+      cisco.ios.ios_config:
+        lines:
+          - "ip host {{ item.name }} {{ item.ip }}"
+      loop: "{{ host_table_entries }}"
+      register: output
+
+    - name: Salvar configurações (write memory) se houver mudanças
+      cisco.ios.ios_config:
+        save_when: modified

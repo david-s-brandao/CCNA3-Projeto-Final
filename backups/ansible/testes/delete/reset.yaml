@@ -1,0 +1,37 @@
+---
+- name: RESET TOTAL - Apagar Configurações e Reiniciar Lab
+  # A ordem aqui define a execução exata:
+  hosts: SW1-Pl,SW1-St,RT1-Pl,RT1-St,SRV-DHCP,RT1-Zg,MLS1-Zg,MLS2-Zg,SW2-Zg,SW1-Zg
+  gather_facts: no
+  serial: 1  # Garante que faz um host de cada vez na ordem da lista acima
+
+  tasks:
+    - name: Apagar a Startup Config (write erase)
+      cisco.ios.ios_command:
+        commands:
+          - command: "write erase"
+            prompt: "Confirm"
+            answer: "\r"
+
+    - name: Reiniciar o Dispositivo (reload)
+      cisco.ios.ios_command:
+        commands:
+          - command: "reload"
+            # O prompt pode variar. O IOS pergunta se queres salvar a config
+            # modificada (dizemos NAO) e depois pede confirmacao (dizemos Y/Enter)
+            prompt:
+              - "System configuration has been modified"
+              - "Proceed with reload"
+            answer:
+              - "no"
+              - "\r"
+      # Como o dispositivo vai reiniciar, a conexao SSH vai cair.
+      # Usamos isto para o Ansible não marcar como falha:
+      ignore_errors: yes
+      failed_when: false
+      async: 1
+      poll: 0
+
+    - name: Mensagem de confirmação local
+      debug:
+        msg: "Comando de reload enviado para {{ inventory_hostname }}. O dispositivo está a reiniciar."

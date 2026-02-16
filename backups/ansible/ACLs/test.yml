@@ -1,0 +1,94 @@
+---
+- name: Auditoria de Segurança baseada em Grupos de Inventário
+  hosts: cisco_network
+  gather_facts: no
+  
+  tasks:
+    # =========================================================
+    # 0. RECOLHA DE DADOS (GLOBAL)
+    # =========================================================
+    - name: Recolher Running Config Global
+      cisco.ios.ios_command:
+        commands: show running-config
+      register: run_config
+
+    # =========================================================
+    # 1. VERIFICAÇÃO SSH (Todos os dispositivos: Routers e Switches)
+    # =========================================================
+    - name: "[SSH] Verificar existência da ACL_SSH"
+      assert:
+        that:
+          - "'ip access-list standard ACL_SSH' in run_config.stdout[0]"
+        fail_msg: "❌ ACL_SSH não existe na configuração global."
+        success_msg: "✅ ACL_SSH definida."
+      ignore_errors: yes
+
+    - name: "[SSH] Verificar aplicação nas linhas VTY (0-15)"
+      assert:
+        that:
+          - "'access-class ACL_SSH in' in run_config.stdout[0]"
+        fail_msg: "❌ As linhas VTY não estão protegidas com access-class."
+        success_msg: "✅ VTY protegido com ACL_SSH."
+      ignore_errors: yes
+
+    # =========================================================
+    # 2. VERIFICAÇÃO VOIP (Apenas Routers de Borda e Core L3)
+    #    Usa a variável 'voip_if' definida no inventário
+    # =========================================================
+    - name: "[VOIP] Auditoria de Interface de Voz"
+      # Só executa se o dispositivo estiver nestes grupos E tiver a variável definida
+      when: 
+        - (inventory_hostname in groups['wan_routers'] or inventory_hostname in groups['l3_devices'])
+        - voip_if is defined
+      block:
+        - name: "Ler configuração da interface {{ voip_if }}"
+          cisco.ios.ios_command:
+            commands: "show run interface {{ voip_if }}"
+          register: voip_int_config
+
+        - name: "Validar ACL_VOIP na interface {{ voip_if }}"
+          assert:
+            that:
+              - "'ip access-group ACL_VOIP in' in voip_int_config.stdout[0]"
+            fail_msg: "❌ Interface {{ voip_if }} NÃO tem 'ip access-group ACL_VOIP in'."
+            success_msg: "✅ Interface {{ voip_if }} protegida corretamente."
+          ignore_errors: yes
+
+    # =========================================================
+    # 3. VERIFICAÇÃO NAT e WAN (Apenas Routers de Borda)
+    #    Usa a variável 'wan_if' definida no inventário
+    # =========================================================
+    - name: "[WAN/NAT] Auditoria de Interface Externa"
+      # Só executa nos routers de borda
+      when: 
+        - inventory_hostname in groups['wan_routers']
+        - wan_if is defined
+      block:
+        - name: "Ler configuração da interface {{ wan_if }}"
+          cisco.ios.ios_command:
+            commands: "show run interface {{ wan_if }}"
+          register: wan_int_config
+
+        - name: "Validar NAT Outside na interface {{ wan_if }}"
+          assert:
+            that:
+              - "'ip nat outside' in wan_int_config.stdout[0]"
+            fail_msg: "❌ Interface {{ wan_if }} não está configurada como 'ip nat outside'."
+            success_msg: "✅ Interface {{ wan_if }} configurada como NAT Outside."
+          ignore_errors: yes
+
+        - name: "Validar ACL_NAT (Standard) na config global"
+          assert:
+            that:
+              - "'ip access-list standard ACL_NAT' in run_config.stdout[0]"
+            fail_msg: "❌ A lista 'ACL_NAT' não existe no router."
+            success_msg: "✅ ACL_NAT existe."
+          ignore_errors: yes
+
+    # =========================================================
+    # 4. AVISO PARA SWITCHES L2
+    # =========================================================
+    - name: "[INFO] Switches de Acesso (L2)"
+      debug:
+        msg: "ℹ️ Dispositivo L2 verificado apenas para SSH (Sem Routing/NAT)."
+      when: inventory_hostname in groups['l2_switches']

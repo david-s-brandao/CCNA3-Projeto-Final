@@ -1,0 +1,161 @@
+---
+- name: 11. Checklist Mestra de Validação da Rede
+  hosts: devices
+  gather_facts: no
+  ignore_errors: yes  # Não para o script se um teste falhar
+
+  tasks:
+    # ---------------------------------------------------------
+    # 11.1 Verificação de Camada 1 e 2
+    # ---------------------------------------------------------
+    - name: "11.1 - Verificar Interfaces Físicas (UP/UP)"
+      cisco.ios.ios_command:
+        commands: show ip interface brief | exclude unassigned
+      register: int_status
+
+    - name: "ASSERT: Interfaces críticas estão UP"
+      assert:
+        that:
+          - "'up                    up' in int_status.stdout[0]"
+        fail_msg: "FALHA: Existem interfaces críticas down em {{ inventory_hostname }}"
+
+    - name: "11.1 - Verificar Port Security (Err-Disabled)"
+      cisco.ios.ios_command:
+        commands: show port-security
+      register: port_sec
+      when: "'switches' in group_names"
+
+    - name: "ASSERT: Nenhuma porta em Shutdown/Err-disabled"
+      assert:
+        that:
+          - "'Secure-shutdown' not in port_sec.stdout[0]"
+        fail_msg: "FALHA: Port Security ativado numa interface em {{ inventory_hostname }}"
+      when: "'switches' in group_names and port_sec.stdout[0] != ''"
+
+    - name: "11.1 - Verificar DHCP Snooping Operacional"
+      cisco.ios.ios_command:
+        commands: show ip dhcp snooping
+      register: dhcp_snoop
+      when: "'switches' in group_names"
+
+    - name: "ASSERT: DHCP Snooping está Ativo"
+      assert:
+        that:
+          - "'Switch DHCP snooping is enabled' in dhcp_snoop.stdout[0]"
+          - "'Operational is yes' in dhcp_snoop.stdout[0] or 'DHCP snooping is configured' in dhcp_snoop.stdout[0]"
+        fail_msg: "FALHA: DHCP Snooping inativo ou mal configurado em {{ inventory_hostname }}"
+      when: "'switches' in group_names"
+
+    # ---------------------------------------------------------
+    # 11.2 Verificação de Camada 3 e HSRP
+    # ---------------------------------------------------------
+    - name: "11.2 - Verificar HSRP (Standby Brief)"
+      cisco.ios.ios_command:
+        commands: show standby brief
+      register: hsrp_status
+      when: "'MLS' in inventory_hostname"
+
+    - name: "ASSERT: MLS1 é Active para VLANs Baixas"
+      assert:
+        that:
+          - "'Active' in hsrp_status.stdout[0]"
+        fail_msg: "FALHA: MLS1 não está Active para os grupos HSRP esperados"
+      when: "inventory_hostname == 'MLS1-Zg'"
+
+    - name: "11.2 - Verificar Vizinhança OSPF"
+      cisco.ios.ios_command:
+        commands: show ip ospf neighbor
+      register: ospf_neigh
+      when: "'routers' in group_names or 'MLS' in inventory_hostname"
+
+    - name: "ASSERT: Vizinhos OSPF detetados"
+      assert:
+        that:
+          - "'FULL' in ospf_neigh.stdout[0]"
+        fail_msg: "FALHA: OSPF não está em estado FULL com vizinhos em {{ inventory_hostname }}"
+      when: "'routers' in group_names"
+
+    - name: "11.2 - Verificar Tabela de Rotas (Rotas OSPF)"
+      cisco.ios.ios_command:
+        commands: show ip route ospf
+      register: ip_route
+
+    - name: "ASSERT: Existem rotas OSPF aprendidas"
+      assert:
+        that:
+          - "'O' in ip_route.stdout[0]"
+        fail_msg: "FALHA: Nenhuma rota OSPF encontrada na tabela de {{ inventory_hostname }}"
+
+    # ---------------------------------------------------------
+    # 11.3 Verificação de VPN e WAN
+    # ---------------------------------------------------------
+    - name: "11.3 - Verificar Sessão Crypto (VPN)"
+      cisco.ios.ios_command:
+        commands: show crypto session
+      register: crypto_sess
+      when: "'routers' in group_names"
+
+    - name: "ASSERT: VPN Tunnel está UP-ACTIVE"
+      assert:
+        that:
+          - "'UP-ACTIVE' in crypto_sess.stdout[0]"
+        fail_msg: "FALHA: VPN Tunnel não está UP-ACTIVE em {{ inventory_hostname }}"
+      when: "'routers' in group_names"
+
+    - name: "11.3 - Verificar Pacotes IPsec (Encript/Decript)"
+      cisco.ios.ios_command:
+        commands: show crypto ipsec sa
+      register: ipsec_sa
+      when: "'routers' in group_names"
+
+    - name: "ASSERT: Tráfego encriptado detetado"
+      assert:
+        that:
+          - "'#pkts encaps: 0' not in ipsec_sa.stdout[0]"
+          - "'#pkts decaps: 0' not in ipsec_sa.stdout[0]"
+        fail_msg: "AVISO: Túnel UP mas sem tráfego encriptado em {{ inventory_hostname }}"
+      when: "'routers' in group_names"
+      ignore_errors: yes # Apenas aviso, pode não haver tráfego no momento
+
+    # ---------------------------------------------------------
+    # 11.4 Verificação de Serviços e Telefonia
+    # ---------------------------------------------------------
+    - name: "11.4 - Verificar Registo de Telefones (CME)"
+      cisco.ios.ios_command:
+        commands: show ephone registered
+      register: ephone_reg
+      when: "'routers' in group_names"
+
+    - name: "ASSERT: Telefones registados"
+      assert:
+        that:
+          - "'ephone-' in ephone_reg.stdout[0]"
+          - "'REGISTERED' in ephone_reg.stdout[0]"
+        fail_msg: "FALHA: Nenhum telefone registado no CME em {{ inventory_hostname }}"
+      when: "'routers' in group_names"
+      ignore_errors: yes # Pode haver routers sem telefones conectados no momento
+
+    - name: "11.4 - Verificar NTP Sincronizado"
+      cisco.ios.ios_command:
+        commands: show ntp status
+      register: ntp_stat
+
+    - name: "ASSERT: NTP Clock is Synchronized"
+      assert:
+        that:
+          - "'Clock is synchronized' in ntp_stat.stdout[0]"
+        fail_msg: "FALHA: Relógio NTP não sincronizado em {{ inventory_hostname }}"
+
+    - name: "11.4 - Verificar Traduções NAT"
+      cisco.ios.ios_command:
+        commands: show ip nat translations
+      register: nat_trans
+      when: "'routers' in group_names"
+
+    - name: "ASSERT: NAT está a funcionar (Tabela não vazia)"
+      assert:
+        that:
+          - nat_trans.stdout[0] | length > 0
+        fail_msg: "AVISO: Tabela NAT vazia em {{ inventory_hostname }}. Gere tráfego Web."
+      when: "'routers' in group_names"
+      ignore_errors: yes

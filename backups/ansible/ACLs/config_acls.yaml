@@ -1,0 +1,104 @@
+---
+- name: Configurar Segurança VoIP e NAT ACLs
+  hosts: routers
+  gather_facts: no
+  connection: network_cli
+  vars:
+    # Ajusta a interface da tua VLAN de Voz aqui, Zeca!
+    voip_interface: "GigabitEthernet0/1.40"
+
+  tasks:
+
+    # ==========================================
+    # 1. CRIAR A ACL EXTENDIDA PARA VOIP
+    # ==========================================
+    - name: Configurar ACL_VOIP (Extended) - Bloqueia Net, Permite Interno
+      cisco.ios.ios_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: ACL_VOIP
+                acl_type: extended
+                aces:
+                  # Permite tráfego para a rede interna (172.20.x.x)
+                  - sequence: 10
+                    grant: permit
+                    protocol: ip
+                    source: any
+                    destination: 172.20.0.0 0.0.255.255
+                  
+                  # CRÍTICO: Permite tráfego para os Túneis VPN (10.x.x.x)
+                  - sequence: 20
+                    grant: permit
+                    protocol: ip
+                    source: any
+                    destination: 10.0.0.0 0.255.255.255
+                  
+                  # Permite DHCP (BootP) para os telefones apanharem IP
+                  - sequence: 30
+                    grant: permit
+                    protocol: udp
+                    source: any
+                    destination: any
+                    protocol_options:
+                      eq: bootps
+                  
+                  # Bloqueia tudo o resto (Internet)
+                  - sequence: 40
+                    grant: deny
+                    protocol: ip
+                    source: any
+                    destination: any
+        state: merged
+
+    # ==========================================
+    # 2. APLICAR A ACL NA INTERFACE
+    # ==========================================
+    - name: Aplicar ACL_VOIP na interface {{ voip_interface }}
+      cisco.ios.ios_acl_interfaces:
+        config:
+          - name: "{{ voip_interface }}"
+            access_groups:
+              - afi: ipv4
+                acl_name: ACL_VOIP
+                direction: in
+        state: merged
+
+    # ==========================================
+    # 3. CRIAR A ACL STANDARD PARA NAT
+    # ==========================================
+    - name: Configurar ACL_NAT (Standard) - Quem pode ir à Net?
+      cisco.ios.ios_acls:
+        config:
+          - afi: ipv4
+            acls:
+              - name: ACL_NAT
+                acl_type: standard
+                aces:
+                  # Admin
+                  - sequence: 10
+                    grant: permit
+                    source: 172.20.5.0 0.0.0.255
+                  # Staff
+                  - sequence: 20
+                    grant: permit
+                    source: 172.20.4.0 0.0.0.255
+                  # Guests (Wildcard 0.0.1.255 abrange /23)
+                  - sequence: 30
+                    grant: permit
+                    source: 172.20.2.0 0.0.1.255
+                  # Wireless
+                  - sequence: 40
+                    grant: permit
+                    source: 172.20.6.0 0.0.0.255
+                  # Nota: Como não metemos a VLAN 40, ela fica 'deny' implícito
+        state: merged
+
+    # ==========================================
+    # 4. GARANTIR O COMANDO DE NAT (Opcional)
+    # ==========================================
+    - name: Garantir que o NAT está a usar a lista certa
+      cisco.ios.ios_config:
+        lines:
+          - ip nat inside source list ACL_NAT interface GigabitEthernet0/1 overload
+      # Este passo é só para garantir que a regra de NAT aponta para a ACL nova

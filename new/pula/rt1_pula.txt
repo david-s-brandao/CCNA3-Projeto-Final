@@ -170,6 +170,9 @@ hash sha
 authentication pre-share
 group 5
 exit
+
+-- AQUI
+
 crypto isakmp key z4gr3bPvl4 address <IP_DHCP_ZAGREB>
 crypto isakmp key Pvl4$pl1t address <IP_DHCP_SPLIT>
 crypto ipsec transform-set TSET esp-aes 128 esp-sha-hmac

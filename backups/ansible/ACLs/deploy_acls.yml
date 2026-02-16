@@ -1,0 +1,55 @@
+---
+- name: Configurar Segurança (ACLs e NAT) - Modo Compatibilidade
+  hosts: wan_routers, l3_devices
+  gather_facts: no
+  connection: network_cli
+
+  tasks:
+    # ==================================================================
+    # 1. CRIAR ACL DE VOIP (USANDO COMANDOS CLI DIRETOS)
+    # ==================================================================
+    - name: Criar ACL_VOIP Extended (Comandos CLI)
+      cisco.ios.ios_config:
+        parents: ip access-list extended ACL_VOIP
+        lines:
+          # Permite rede interna
+          - permit ip any 172.20.0.0 0.0.255.255
+          # Permite túneis VPN (Crítico para chamadas entre sites)
+          - permit ip any 10.0.0.0 0.255.255.255
+          # Permite DHCP
+          - permit udp any any eq bootps
+          # Bloqueia Internet
+          - deny ip any any
+
+    # ==================================================================
+    # 2. APLICAR NA INTERFACE (APENAS SE A VARIÁVEL EXISTIR)
+    # ==================================================================
+    # ==================================================================
+    # 2. APLICAR NA INTERFACE DE VOZ (CORRIGIDO)
+    # ==================================================================
+    - name: Aplicar ACL_VOIP na interface {{ voip_if }}
+      cisco.ios.ios_config:
+        # O 'parents' garante que ele ENTRA na interface primeiro
+        parents: interface {{ voip_if }}
+        lines:
+          - ip access-group ACL_VOIP in
+      # Só corre se a variável estiver definida
+      when: voip_if is defined
+
+    # ==================================================================
+    # 3. CRIAR ACL DE NAT (STANDARD)
+    # ==================================================================
+    - name: Criar ACL_NAT Standard
+      cisco.ios.ios_config:
+        parents: ip access-list standard ACL_NAT
+        lines:
+          - permit 172.20.5.0 0.0.0.255
+          - permit 172.20.4.0 0.0.0.255
+          - permit 172.20.2.0 0.0.1.255
+          - permit 172.20.6.0 0.0.0.255
+
+# ==================================================================
+# 4. CONFIGURAR NAT APENAS NOS ROUTERS DE BORDA
+# ==================================================================
+- name: Aplicar NAT nos Routers
+  hosts: wan_

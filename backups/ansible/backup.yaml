@@ -1,21 +1,151 @@
 ---
-- name: Backup de Configuracoes Cisco
-  hosts: zagreb_devices
+- name: Network Operations Manager
+  hosts: devices
+  gather_facts: no
+  vars:
+    ansible_host_key_checking: false
+    # Define the output directory variable for easier changes later
+    output_dir: "./network_logs"
+
+  # Interactive Menu
+  vars_prompt:
+    - name: "selected_action"
+      prompt: |
+        -------------------------------------------
+        SELECT OPERATION:
+        1. Backup Configuration (Save to file)
+        2. Write Memory (Save to startup-config)
+        3. Connectivity Check (Ping 8.8.8.8)
+        4. Collect Routing Table
+        5. Add SNMP ACL to all devices
+        6. Add SSH ACL to all devices
+        7. Configure Loggings
+        8. 
+        9. EXECUTE ALL TASKS
+        -------------------------------------------
+        Enter your choice [1, 2, 3, 4...]
+      private: no
+
+  tasks:
+    # -----------------------------------------------------------------
+    # PREPARATION TASKS
+    # -----------------------------------------------------------------
+    - name: Create local directory for logs and backups
+      file:
+        path: "{{ output_dir }}"
+        state: directory
+      delegate_to: localhost
+      run_once: true
+
+    # -----------------------------------------------------------------
+    # TASK 2: SAVE CONFIGURATION (Write Memory)
+    # -----------------------------------------------------------------
+    - name: Save running configuration to startup-config
+      cisco.ios.ios_command:
+        commands: write memory
+      when: selected_action == '2' or selected_action == '9'
+      register: write_result
+
+    - name: Confirm save status
+      debug:
+        msg: "Configuration saved on {{ inventory_hostname }}"
+      when: 
+        - (selected_action == '2' or selected_action == '9')
+        - write_result is changed
+
+    # -----------------------------------------------------------------
+    # TASK 3: CONNECTIVITY CHECK (Ping)
+    # -----------------------------------------------------------------
+    - name: Execute ping to 8.8.8.8
+      cisco.ios.ios_command:
+        commands: ping 8.8.8.8 repeat 3
+      when: selected_action == '3' or selected_action == '9'
+      register: ping_output
+      ignore_errors: yes
+
+    - name: Display connectivity status
+      debug:
+        msg: "Ping from {{ inventory_hostname }}: {{ 'SUCCESS' if '!!!' in ping_output.stdout[0] else 'FAILURE' }}"
+      when: 
+        - (selected_action == '3' or selected_action == '9')
+        - ping_output.stdout is defined
+
+    # -----------------------------------------------------------------
+    # TASK 4: ROUTING TABLE COLLECTION
+    # -----------------------------------------------------------------
+    - name: Retrieve IP routing table
+      cisco.ios.ios_command:
+        commands: show ip route
+      when: selected_action == '4' or selected_action == '9'
+      register: route_output
+
+    - name: Save routing table to local file
+      copy:
+        content: "{{ route_output.stdout[0] }}"
+        dest: "{{ output_dir }}/{{ inventory_hostname }}_routes.txt"
+      delegate_to: localhost
+      when: selected_action == '4' or selected_action == '9'
+
+    - name: Add ACL - SNMP
+      cisco.ios.ios_config:
+        parents: ip access-list standard ACL_SNMP
+        lines:
+          - permit host 172.20.7.70
+      when: selected_action == '5' or selected_action == '9'
+      register: acl_output
+      ignore_errors: yes
+
+    - name: Configure SNMP community with ACL
+      cisco.ios.ios_config:
+        lines:
+          - snmp-server community public RO ACL_SNMP
+      when: selected_action == '5' or selected_action == '9'
+      register: snmp_output
+      ignore_errors: yes
+
+    - name: Organize time for logs
+      cisco.ios.ios_config:
+        lines:
+          - logging on
+          - logging host 172.20.7.70
+          - logging trap informational
+          - service timestamps log datetime msec
+      when: selected_action == '6' or selected_action == '9'
+      register: snmp_output
+      ignore_errors: yes
+
+
+    - name: Display connectivity status
+      debug:
+        msg: "SNMP ACL configured on {{ inventory_hostname }}: {{ 'SUCCESS' if 'ACL_SNMP' in ping_output.stdout[0] else 'FAILURE' }}"
+      when: 
+        - (selected_action == '5' or selected_action == '9')
+        - ping_output.stdout is defined
+
+    # -----------------------------------------------------------------
+    # TASK 1: CONFIGURATION BACKUP
+    # -----------------------------------------------------------------
+    - name: Retrieve running configuration
+      cisco.ios.ios_command:
+        commands: show running-config
+      when: selected_action == '1' or selected_action == '9'
+      register: config_output
+
+    - name: Save configuration to local file
+      copy:
+        content: "{{ config_output.stdout[0] }}"
+        dest: "{{ output_dir }}/{{ inventory_hostname }}_config.txt"
+      delegate_to: localhost
+      when: selected_action == '1' or selected_action == '9'
+
+    
+- name: Configurar NTP e Logging Centralizado
+  hosts: devices
   gather_facts: no
 
   tasks:
-    - name: Criar pasta de backups
-      file:
-        path: ./devices
-        state: directory
-      run_once: true
-
-    - name: Obter running-config
-      cisco.ios.ios_command:
-        commands: show running-config
-      register: config_output
-
-    - name: Guardar em ficheiro
-      copy:
-        content: "{{ config_output.stdout[0] }}"
-        dest: "./devices/{{ inventory_hostname }}_config.txt"
+    # -----------------------------------------------------------------    # COMPLETION NOTICE
+    # -----------------------------------------------------------------
+    - name: Operation Complete
+      debug:
+        msg: "Tasks completed for {{ inventory_hostname }}"
